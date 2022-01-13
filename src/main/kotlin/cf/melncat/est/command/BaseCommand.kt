@@ -33,7 +33,7 @@ abstract class BaseCommand(
 		}
 		override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
 			if (!testPermission(sender)) return true
-			return execute(sender, label, args)
+			return this@BaseCommand.execute(sender, label, args)
 		}
 
 		override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>)

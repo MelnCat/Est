@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import java.io.File
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
 private val configFile = File(plugin.dataFolder, "config.yml")
@@ -34,7 +34,8 @@ data class FireballConfig(
 @Serializable
 data class Config(
 	@SerialName("custom-item-tag")
-	val customItemTag: String = "est:custom_item_type",
+	@Serializable(with = NamespacedKeySerializer::class)
+	val customItemTag: NamespacedKey = NamespacedKey(plugin, "custom_item_type"),
 	val fireballs: FireballConfig = FireballConfig()
 )
 

@@ -49,6 +49,9 @@ fun <Z> PersistentDataContainer.get(key: String, type: PersistentDataType<*, Z>)
 inline fun <reified T : Any> PersistentDataContainer.get(key: String): T? =
 	get(key, matchPDataType(T::class))
 
+inline fun <reified T : Any> PersistentDataContainer.get(key: NamespacedKey): T? =
+	get(key, matchPDataType(T::class))
+
 fun <Z> PersistentDataContainer.has(key: String, type: PersistentDataType<*, Z>): Boolean =
 	has(
 		NamespacedKey(plugin, key),
@@ -58,8 +61,13 @@ fun <Z> PersistentDataContainer.has(key: String, type: PersistentDataType<*, Z>)
 inline fun <reified T : Any> PersistentDataContainer.has(key: String): Boolean =
 	has(key, matchPDataType(T::class))
 
+inline fun <reified T : Any> PersistentDataContainer.has(key: NamespacedKey): Boolean =
+	has(key, matchPDataType(T::class))
 
 inline fun <reified T : Any> PersistentDataContainer.set(key: String, value: T) =
+	set(key, matchPDataType(T::class), value)
+
+inline fun <reified T : Any> PersistentDataContainer.set(key: NamespacedKey, value: T) =
 	set(key, matchPDataType(T::class), value)
 
 fun <Z> PersistentDataContainer.set(key: String, type: PersistentDataType<*, Z>, value: Z) =

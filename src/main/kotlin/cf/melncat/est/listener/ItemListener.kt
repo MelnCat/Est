@@ -1,27 +1,28 @@
 package cf.melncat.est.listener
 
-import cf.melncat.est.plugin
 import cf.melncat.est.util.ARMOR_EFFECT_KEY
 import cf.melncat.est.util.PDC
+import cf.melncat.est.util.config
 import cf.melncat.est.util.get
 import cf.melncat.est.util.has
+import cf.melncat.est.util.meta
 import cf.melncat.est.util.pd
-import com.google.gson.Gson
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority.HIGH
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
-import org.bukkit.event.entity.EntityTeleportEvent
+import org.bukkit.event.inventory.PrepareAnvilEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import java.util.UUID
 
 object ItemListener : Listener {
@@ -76,5 +77,19 @@ object ItemListener : Listener {
 	@EventHandler
 	fun onItemDamage(event: PlayerItemDamageEvent) {
 		event.isCancelled = true
+	}
+
+	@EventHandler(priority = HIGH)
+	fun onAnvilPrepare(event: PrepareAnvilEvent) {
+		val first = event.inventory.firstItem ?: return
+		val second = event.inventory.secondItem ?: return
+		if (!second.hasItemMeta() || second.itemMeta.pd.get<String>(config.customItemTag) != "mystical_tome") return
+		if (first.type !== Material.ENCHANTED_BOOK) return
+		val res = first.clone().meta<EnchantmentStorageMeta> {
+			val enchant = storedEnchants.entries.firstOrNull() ?: return
+			addStoredEnchant(enchant.key, enchant.value + 1, true)
+			event.inventory.repairCost = enchant.value + 3
+		}
+		event.result = res
 	}
 }

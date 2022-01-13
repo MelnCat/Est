@@ -9,7 +9,7 @@ object DamageListener : Listener {
 	@EventHandler
 	fun onDamage(event: EntityDamageByEntityEvent) {
 		if (event.damager !is Player || event.entity !is Player) return
-		while (event.finalDamage > 19) event.damage -= 1
+		if (event.damage > 40) event.damage = 40.0
 	}
 
 }
