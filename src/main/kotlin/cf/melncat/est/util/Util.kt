@@ -1,6 +1,9 @@
 package cf.melncat.est.util
 
 import cf.melncat.est.plugin
+import com.jojodmo.itembridge.ItemBridge
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -13,6 +16,9 @@ import org.bukkit.persistence.PersistentDataAdapterContext
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataHolder
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.plugin.Plugin
+import org.bukkit.plugin.ServicesManager
+import org.bukkit.scheduler.BukkitScheduler
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -64,3 +70,20 @@ fun <T, U, V> compose(f: (T) -> U, g: (U) -> V): (T) -> V
 	= { g(f(it)) }
 
 val ItemStack?.isAir: Boolean get() = this === null || this.type === Material.AIR
+
+fun BukkitScheduler.runTaskTimer(delay: Long, period: Long, cb: () -> Unit)
+		= runTaskTimer(plugin, cb, delay, period)
+
+fun BukkitScheduler.runTaskTimer(delay: Long, period: Long, cb: suspend () -> Unit)
+		= runTaskTimer(plugin, { -> runBlocking { launch { cb() } } }, delay, period)
+
+fun BukkitScheduler.runTaskLater(delay: Long, cb: () -> Unit)
+		= runTaskLater(plugin, cb, delay)
+
+fun BukkitScheduler.runTaskLater(delay: Long, cb: suspend () -> Unit)
+		= runTaskLater(plugin, { -> runBlocking { launch { cb() } } }, delay)
+
+fun customItem(str: String): ItemStack = ItemBridge.getItemStack(config.itemBridgeNamespace, str)
+
+inline fun <reified T> ServicesManager.getRegistration()
+	= getRegistration(T::class.java)

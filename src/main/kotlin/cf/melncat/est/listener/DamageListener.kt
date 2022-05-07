@@ -12,4 +12,10 @@ object DamageListener : Listener {
 		if (event.damage > 40) event.damage = 40.0
 	}
 
+	@EventHandler
+	fun disableInvFrames(event: EntityDamageByEntityEvent) {
+		val entity = event.entity
+		if (entity !is Player) return
+		entity.noDamageTicks = 0
+	}
 }

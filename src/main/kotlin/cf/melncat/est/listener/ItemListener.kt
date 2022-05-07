@@ -1,13 +1,20 @@
 package cf.melncat.est.listener
 
+import cf.melncat.est.eco
 import cf.melncat.est.util.ARMOR_EFFECT_KEY
 import cf.melncat.est.util.PDC
 import cf.melncat.est.util.config
 import cf.melncat.est.util.get
 import cf.melncat.est.util.has
+import cf.melncat.est.util.isAir
 import cf.melncat.est.util.meta
+import cf.melncat.est.util.mm
 import cf.melncat.est.util.pd
+import com.comphenix.protocol.PacketType.Play
+import com.comphenix.protocol.events.PacketContainer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Mth.clamp
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -17,10 +24,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.inventory.PrepareAnvilEvent
+import org.bukkit.event.player.PlayerAttemptPickupItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import org.bukkit.potion.PotionEffect
 import java.util.UUID
@@ -88,8 +97,33 @@ object ItemListener : Listener {
 		val res = first.clone().meta<EnchantmentStorageMeta> {
 			val enchant = storedEnchants.entries.firstOrNull() ?: return
 			addStoredEnchant(enchant.key, enchant.value + 1, true)
-			event.inventory.repairCost = enchant.value + 3
+			event.inventory.repairCost = clamp(enchant.value, 1, 6)
 		}
 		event.result = res
+	}
+	private fun getCoinValue(item: ItemStack)
+		= if (!item.isAir && item.hasItemMeta() && item.itemMeta.pd.has<String>(config.customItemTag))
+			when (item.itemMeta.pd.get<String>(config.customItemTag)) {
+				"coin_1" -> 1
+				"coin_10" -> 10
+				"coin_100" -> 100
+				else -> null
+			} else null
+
+	@EventHandler
+	fun pickupCoins(event: PlayerAttemptPickupItemEvent) {
+		val worth = getCoinValue(event.item.itemStack) ?: return
+		val count = event.item.itemStack.amount
+		eco.depositPlayer(event.player, (worth * count).toDouble())
+		event.player.sendMessage("<gray>You got <yellow><0></yellow>!".mm(worth * count))
+		event.isCancelled = true
+		val packet = PacketContainer(Play.Server.COLLECT).apply {
+
+		}
+		event.item.remove()
+	}
+
+	fun test() {
+		println(ServerPlayer.DATA_ARROW_COUNT_ID)
 	}
 }

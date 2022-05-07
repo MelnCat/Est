@@ -22,13 +22,17 @@ repositories {
 dependencies {
 	compileOnly(kotlin("stdlib"))
 	compileOnly(kotlin("reflect"))
-	compileOnly("org.purpurmc.purpur", "purpur-api", "1.18.1-R0.1-SNAPSHOT")
+	compileOnly("org.purpurmc.purpur", "purpur-api", "1.18.2-R0.1-SNAPSHOT")
 	compileOnly("com.comphenix.protocol", "ProtocolLib", "4.7.0")
 	compileOnly("de.tr7zw:item-nbt-api-plugin:2.6.0")
 	compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+	compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0")
+	compileOnly("org.tukaani:xz:1.9")
+	compileOnly("com.github.jojodmo:ItemBridge:b0054538c1")
+	compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 	implementation("org.reflections:reflections:0.10.2")
 	implementation("com.charleskorn.kaml:kaml:0.38.0")
-	paperDevBundle("1.18.1-R0.1-SNAPSHOT")
+	paperDevBundle("1.18.2-R0.1-SNAPSHOT")
 }
 
 java {
@@ -43,8 +47,10 @@ tasks {
 			}
 		}
 		fun rel(pattern: String) = relocate(pattern, "cf.melncat.est.shaded.$pattern")
-		rel("com.charleskorn.kaml")
-		rel("org.reflections")
+		listOf(
+			"com.charleskorn.kaml",
+			"org.reflections"
+		).forEach(::rel)
 	}
 
 	assemble {

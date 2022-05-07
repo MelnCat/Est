@@ -1,6 +1,9 @@
 package cf.melncat.est.util
 
 import cf.melncat.est.plugin
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.bukkit.NamespacedKey
 import org.bukkit.persistence.PersistentDataAdapterContext
 import org.bukkit.persistence.PersistentDataContainer
@@ -12,7 +15,8 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import kotlin.reflect.KClass
-
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.companionObject
 
 typealias PDC = PersistentDataContainer
 
@@ -175,3 +179,28 @@ private inline fun <reified T : Any> containerArrayPDType(type: PersistentDataTy
 	}.also { containerArrayPDTypeCache[T::class] = it as PersistentDataType<Array<PDC>, Array<*>> }.also { println("pd ${T::class}") }
 
 private val Utf8ArrayPDType = StringArrayPDType(StandardCharsets.UTF_8)
+
+abstract class PDCSerializable(protected val tag: PersistentDataContainer) {
+	protected open class OptionalPDataDelegate<T>(private val key: String, private val type: PersistentDataType<*, T>) {
+		open operator fun getValue(thisRef: PDCSerializable, property: KProperty<*>): T? {
+			return thisRef.tag.get(key, type)
+		}
+
+		operator fun setValue(thisRef: PDCSerializable, property: KProperty<*>, value: T) {
+			thisRef.tag.set(key, type, value)
+		}
+	}
+	protected class PDataDelegate<T>(private val key: String, private val type: PersistentDataType<*, T>, private val default: T)
+		: OptionalPDataDelegate<T>(key, type) {
+
+		override operator fun getValue(thisRef: PDCSerializable, property: KProperty<*>): T {
+			return thisRef.tag.get(key, type) ?: default
+		}
+	}
+
+	protected inline fun <reified T: Any> pd(key: String)
+			= OptionalPDataDelegate(key, matchPDataType(T::class))
+
+	protected inline fun <reified T: Any> pd(key: String, default: T)
+			= PDataDelegate(key, matchPDataType(T::class), default)
+}

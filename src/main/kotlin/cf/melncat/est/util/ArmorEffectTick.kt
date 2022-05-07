@@ -11,13 +11,13 @@ const val ARMOR_EFFECT_KEY = "armor_effects"
 fun armorEffectTick() {
 	for (player in plugin.server.onlinePlayers) {
 		arrayOf(player.inventory.itemInMainHand, player.inventory.itemInOffHand).forEach {
-			if (it as ItemStack? !== null) applyArmorEffect(
+			applyArmorEffect(
 				player,
 				it
 			)
 		}
-		player.inventory.armorContents.forEach {
-			if (it as ItemStack? !== null) applyArmorEffect(
+		player.inventory.armorContents?.forEach {
+			if (it !== null) applyArmorEffect(
 				player,
 				it, true
 			)

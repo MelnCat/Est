@@ -36,7 +36,8 @@ data class Config(
 	@SerialName("custom-item-tag")
 	@Serializable(with = NamespacedKeySerializer::class)
 	val customItemTag: NamespacedKey = NamespacedKey(plugin, "custom_item_type"),
-	val fireballs: FireballConfig = FireballConfig()
+	val fireballs: FireballConfig = FireballConfig(),
+	val itemBridgeNamespace: String = "esti"
 )
 
 fun loadConfig() {
