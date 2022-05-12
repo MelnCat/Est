@@ -2,6 +2,7 @@ package cf.melncat.est.command
 
 import cf.melncat.est.util.defaultSelectors
 import cf.melncat.est.util.matchEntityTypeOrThrow
+import cf.melncat.est.util.mm
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -12,8 +13,8 @@ object CTellrawCommand : BaseCommand(
 ) {
 	override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
 		val players = sender.matchEntityTypeOrThrow<Player>(args[0]) ?: return false
-		val component = LegacyComponentSerializer.legacyAmpersand().deserialize(args.drop(1).joinToString(" "))
-		players.forEach { it.sendMessage(component) }
+		//val component = LegacyComponentSerializer.legacyAmpersand().deserialize(args.drop(1).joinToString(" "))
+		players.forEach { it.sendMessage(args.drop(1).joinToString(" ").mm()) }
 		return true
 	}
 	override fun tabComplete(sender: CommandSender, label: String, args: Array<out String>): List<String> {

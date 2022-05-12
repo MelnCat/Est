@@ -115,7 +115,7 @@ object ItemListener : Listener {
 		val worth = getCoinValue(event.item.itemStack) ?: return
 		val count = event.item.itemStack.amount
 		eco.depositPlayer(event.player, (worth * count).toDouble())
-		event.player.sendMessage("<gray>You got <yellow><0></yellow>!".mm(worth * count))
+		event.player.sendMessage("<gray>You got <yellow>$<0></yellow>!".mm((worth * count).toString()))
 		event.isCancelled = true
 		val packet = PacketContainer(Play.Server.COLLECT).apply {
 

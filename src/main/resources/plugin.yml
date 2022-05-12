@@ -7,11 +7,15 @@ depend:
   - ItemBridge
   - Vault
 libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib:1.6.10
-  - org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10
-  - org.jetbrains.kotlin:kotlin-reflect:1.6.10
+  - org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+  - org.jetbrains.kotlin:kotlin-reflect:1.6.21
   - org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2
-  - org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1
+  - org.graalvm.js:js:22.1.0
+  - org.graalvm.js:js-scriptengine:22.1.0
+  - org.graalvm.truffle:truffle-api:22.1.0
+  - org.graalvm.sdk:graal-sdk:22.1.0
   - org.tukaani:xz:1.9
 
 api-version: 1.18
