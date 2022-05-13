@@ -67,7 +67,7 @@ fun tickParabolas() {
 	val iterator = launches.listIterator()
 	while (iterator.hasNext()) {
 		val l = iterator.next()
-		if (l.current > l.end || l.vehicle.isDead || l.entity.isDead) {
+		if (l.current > l.end || l.vehicle.isDead || l.entity.isDead || l.vehicle.passengers.isEmpty()) {
 			iterator.remove()
 			if (!l.vehicle.isDead) {
 				l.vehicle.passengers.clear()

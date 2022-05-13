@@ -8,6 +8,7 @@ import cf.melncat.est.listener.ChatListener
 import cf.melncat.est.listener.DamageListener
 import cf.melncat.est.listener.DispenserListener
 import cf.melncat.est.listener.ItemListener
+import cf.melncat.est.listener.WeaponListener
 import cf.melncat.est.util.armorEffectTick
 import cf.melncat.est.util.changeBlastResistance
 import cf.melncat.est.util.getRegistration
@@ -16,6 +17,8 @@ import cf.melncat.est.util.loadSocialCredit
 import cf.melncat.est.util.reflections
 import cf.melncat.est.util.runTaskTimer
 import cf.melncat.est.util.saveSocialCredit
+import cf.melncat.est.weaponarts.defaultWeaponArts
+import cf.melncat.est.weaponarts.weaponArtTick
 import com.comphenix.protocol.ProtocolLibrary
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -23,6 +26,7 @@ import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.scanners.Scanners.TypesAnnotated
+import cf.melncat.est.listener.tickWeaponArtCooldowns
 
 lateinit var plugin: Est private set
 lateinit var eco: Economy private set
@@ -44,8 +48,12 @@ class Est : JavaPlugin() {
 		server.pluginManager.registerEvents(ItemListener, this)
 		server.pluginManager.registerEvents(DispenserListener, this)
 		server.pluginManager.registerEvents(ChatListener, this)
+		server.pluginManager.registerEvents(WeaponListener, this)
+		defaultWeaponArts()
 		server.scheduler.runTaskTimer(0, 5, ::armorEffectTick)
 		server.scheduler.runTaskTimer(0, 1, ::tickParabolas)
+		server.scheduler.runTaskTimer(0, 1, ::weaponArtTick)
+		server.scheduler.runTaskTimer(0, 1, ::tickWeaponArtCooldowns)
 		setupItemProxy()
 		runBlocking {
 			launch {
