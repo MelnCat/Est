@@ -7,6 +7,7 @@ import cf.melncat.est.itemproxy.setupItemProxy
 import cf.melncat.est.listener.ChatListener
 import cf.melncat.est.listener.DamageListener
 import cf.melncat.est.listener.DispenserListener
+import cf.melncat.est.listener.HealthListener
 import cf.melncat.est.listener.ItemListener
 import cf.melncat.est.listener.WeaponListener
 import cf.melncat.est.util.armorEffectTick
@@ -27,6 +28,7 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.scanners.Scanners.TypesAnnotated
 import cf.melncat.est.listener.tickWeaponArtCooldowns
+import cf.melncat.est.util.runTaskLater
 
 lateinit var plugin: Est private set
 lateinit var eco: Economy private set
@@ -40,8 +42,10 @@ class Est : JavaPlugin() {
 		val commands =
 			reflections.get(TypesAnnotated.with(RegisterCommand::class.java).asClass<Any>())
 				.map { it.kotlin.objectInstance!! as BaseCommand }
-		commands.forEach {
-			it.register(map)
+		server.scheduler.runTaskLater(20) {
+			commands.forEach {
+				it.register(map)
+			}
 		}
 		changeBlastResistance()
 		server.pluginManager.registerEvents(DamageListener, this)
@@ -49,6 +53,7 @@ class Est : JavaPlugin() {
 		server.pluginManager.registerEvents(DispenserListener, this)
 		server.pluginManager.registerEvents(ChatListener, this)
 		server.pluginManager.registerEvents(WeaponListener, this)
+		server.pluginManager.registerEvents(HealthListener, this)
 		defaultWeaponArts()
 		server.scheduler.runTaskTimer(0, 5, ::armorEffectTick)
 		server.scheduler.runTaskTimer(0, 1, ::tickParabolas)

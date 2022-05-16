@@ -15,7 +15,7 @@ object ResetCooldownCommand : BaseCommand(
 	override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
 		if (sender !is Player) return sender.usageError("You must be a player to use this command.")
 		resetCooldown(sender)
-		sender.sendMessage("<green>Your weapon art cooldown has been reset.")
+		sender.sendMessage("<green>Your weapon art cooldown has been reset.".mm())
 		return true
 	}
 }

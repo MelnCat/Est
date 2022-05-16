@@ -24,7 +24,7 @@ fun String.component(color: TC) = Component.text(this, color)
 
 operator fun Component.plus(other: Component) = append(other)
 
-fun String.mm(instance: MiniMessage = mm) = Component.text(this)// instance.parse(this)
+fun String.mm(instance: MiniMessage = mm) = instance.deserialize(this)
 
 fun String.mm(vararg placeholders: Pair<String, String>, parsed: Boolean = false, instance: MiniMessage = mm) =
 	instance.deserialize(this, TagResolver.resolver(placeholders.map {

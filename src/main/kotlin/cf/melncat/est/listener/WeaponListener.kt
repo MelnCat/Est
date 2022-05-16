@@ -20,7 +20,7 @@ import java.util.UUID
 import kotlin.math.floor
 
 
-private data class CooldownData(var current: Int, val max: Int)
+private data class CooldownData(val start: Long, val max: Long)
 
 private val cooldownBars = mutableMapOf<Player, CooldownData>()
 private val cooldowns = mutableMapOf<UUID, Long>()
@@ -31,23 +31,27 @@ object WeaponListener : Listener {
 	fun onInteract(event: PlayerInteractEvent) {
 		val item = event.item
 		if (!event.player.isSneaking || !event.action.isRightClick || item == null) return
-		val ibKey = ItemBridge.getItemKey(item)
-		val art = weaponArtMap[item.type.key] ?: ibWeaponArtMap[ItemBridge.getItemKey(item)] ?: return
+		val art = ibWeaponArtMap[ItemBridge.getItemKey(item).let { it?.namespace to it?.item }] ?: weaponArtMap[item.type.key] ?: return
 		val target = event.player.getTargetEntity(5) as? LivingEntity
 		if (event.player.uniqueId in cooldowns && cooldowns[event.player.uniqueId]!! > System.currentTimeMillis())
 			return
 		if (art.type == Entity && target == null) return
+		val entity = when (art.type) {
+			Entity -> target!!
+			else -> event.player
+		}
 		activeWeaponArts.add(
 			ActiveWeaponArt(
 				art,
-				target?.location ?: event.player.location,
+				entity.location,
 				event.player,
-				target ?: event.player,
+				entity,
 				item
 			)
 		)
-		cooldowns[event.player.uniqueId] = System.currentTimeMillis() + art.cooldown
-		cooldownBars[event.player] = CooldownData(art.cooldown / 20, art.cooldown / 20)
+		val end = System.currentTimeMillis() + art.cooldown
+		cooldowns[event.player.uniqueId] = end
+		cooldownBars[event.player] = CooldownData(System.currentTimeMillis(), end)
 	}
 }
 
@@ -55,14 +59,15 @@ const val bars = 50
 
 fun tickWeaponArtCooldowns() {
 	val iterator = cooldownBars.iterator()
+	val now = System.currentTimeMillis()
 	while (iterator.hasNext()) {
 		val (player, cd) = iterator.next()
-		if (player.isDead || cd.current < 0) {
+		if (player.isDead || now > cd.max) {
 			player.sendActionBar("" / NTC.WHITE)
 			iterator.remove()
 			continue
 		}
-		val percentage = cd.current.toDouble() / cd.max
+		val percentage = 1 - (now - cd.start).toDouble() / (cd.max - cd.start)
 		val filled = (percentage * bars).toInt()
 		player.sendActionBar(
 			("Cooldown <#000000>[<transition:green:#ffff00:#ff0000:$percentage><filled></transition><dark_gray><unfilled></dark_gray>]").mm(
@@ -70,7 +75,6 @@ fun tickWeaponArtCooldowns() {
 				"unfilled" to "|".repeat(bars - filled),
 			)
 		)
-		cd.current--
 	}
 }
 

@@ -71,8 +71,8 @@ fun BukkitScheduler.runTaskTimer(delay: Long, period: Long, cb: suspend () -> Un
 fun BukkitScheduler.runTaskLater(delay: Long, cb: () -> Unit)
 		= runTaskLater(plugin, cb, delay)
 
-fun BukkitScheduler.runTaskLater(delay: Long, cb: suspend () -> Unit)
-		= runTaskLater(plugin, { -> runBlocking { launch { cb() } } }, delay)
+//fun BukkitScheduler.runTaskLater(delay: Long, cb: suspend () -> Unit)
+//		= runTaskLater(plugin, { -> runBlocking { launch { cb() } } }, delay)
 
 fun customItem(str: String): ItemStack = ItemBridge.getItemStack(config.itemBridgeNamespace, str)
 
