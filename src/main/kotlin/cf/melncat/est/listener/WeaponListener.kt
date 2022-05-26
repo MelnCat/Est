@@ -8,16 +8,14 @@ import cf.melncat.est.weaponarts.WeaponArtType.Entity
 import cf.melncat.est.weaponarts.activeWeaponArts
 import cf.melncat.est.weaponarts.ibWeaponArtMap
 import cf.melncat.est.weaponarts.weaponArtMap
+import cf.melncat.furcation.plugin.loaders.RegisterListener
 import com.jojodmo.itembridge.ItemBridge
-import org.apache.commons.lang3.tuple.MutablePair
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractEvent
 import java.util.UUID
-import kotlin.math.floor
 
 
 private data class CooldownData(val start: Long, val max: Long)
@@ -25,6 +23,7 @@ private data class CooldownData(val start: Long, val max: Long)
 private val cooldownBars = mutableMapOf<Player, CooldownData>()
 private val cooldowns = mutableMapOf<UUID, Long>()
 
+@RegisterListener
 object WeaponListener : Listener {
 
 	@EventHandler

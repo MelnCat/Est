@@ -10,6 +10,7 @@ import cf.melncat.est.util.isAir
 import cf.melncat.est.util.meta
 import cf.melncat.est.util.mm
 import cf.melncat.est.util.pd
+import cf.melncat.furcation.plugin.loaders.RegisterListener
 import com.comphenix.protocol.PacketType.Play
 import com.comphenix.protocol.events.PacketContainer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
@@ -34,6 +35,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import org.bukkit.potion.PotionEffect
 import java.util.UUID
 
+@RegisterListener
 object ItemListener : Listener {
 	@EventHandler
 	fun onInteract(event: PlayerInteractEvent) {

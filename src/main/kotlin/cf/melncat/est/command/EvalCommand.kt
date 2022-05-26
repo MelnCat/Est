@@ -1,17 +1,11 @@
 package cf.melncat.est.command
 
 import cf.melncat.est.util.NTC
-import cf.melncat.est.util.defaultSelectors
 import cf.melncat.est.util.div
-import cf.melncat.est.util.matchEntityTypeOrThrow
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import org.bukkit.Bukkit
+import com.oracle.truffle.api.Truffle
 import org.bukkit.command.CommandSender
-import org.bukkit.entity.Player
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.PolyglotException
-import java.awt.SystemColor.text
-import kotlin.reflect.KClass
 
 @RegisterCommand
 object EvalCommand : BaseCommand(
@@ -21,9 +15,9 @@ object EvalCommand : BaseCommand(
 
 	init {
 		val oldClassLoader = Thread.currentThread().contextClassLoader
-		Thread.currentThread().contextClassLoader = KClass::class.java.classLoader
+		Thread.currentThread().contextClassLoader = Truffle::class.java.classLoader
 		graalContext = Context.newBuilder("js")
-			.hostClassLoader(KClass::class.java.classLoader)
+			.hostClassLoader(Truffle::class.java.classLoader)
 			.option("engine.WarnInterpreterOnly", "false")
 			.allowAllAccess(true).build()
 		Thread.currentThread().contextClassLoader = oldClassLoader

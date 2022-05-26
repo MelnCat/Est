@@ -1,10 +1,12 @@
 package cf.melncat.est.listener
 
+import cf.melncat.furcation.plugin.loaders.RegisterListener
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
+@RegisterListener
 object DamageListener : Listener {
 	@EventHandler
 	fun onDamage(event: EntityDamageByEntityEvent) {

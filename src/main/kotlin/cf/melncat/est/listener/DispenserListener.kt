@@ -3,6 +3,7 @@ package cf.melncat.est.listener
 import cf.melncat.est.util.config
 import cf.melncat.est.util.get
 import cf.melncat.est.util.pd
+import cf.melncat.furcation.plugin.loaders.RegisterListener
 import io.papermc.paper.event.block.BlockPreDispenseEvent
 import org.bukkit.block.data.type.Dispenser
 import org.bukkit.entity.Fireball
@@ -12,6 +13,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.CUSTOM
 import org.bukkit.event.entity.EntityExplodeEvent
 
 
+@RegisterListener
 object DispenserListener : Listener {
 	@EventHandler
 	fun onInteract(event: BlockPreDispenseEvent) {

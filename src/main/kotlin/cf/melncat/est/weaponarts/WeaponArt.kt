@@ -34,6 +34,7 @@ data class ActiveWeaponArt(
 	var time: Int = 0,
 	var state: Any = art.defaultState()
 ) {
+	@Suppress("unused")
 	fun end() {
 		time = -1
 	}
@@ -302,6 +303,24 @@ fun defaultWeaponArts() {
 			(it.player.getNearbyEntities(3.0, 3.0, 3.0) + it.player).forEach {
 				p -> if (p is Player) p.sendMessage("+1000 SOCIAL CREDIT" / NTC.GREEN)
 			}
+		}
+	}
+	ibWeaponArtMap["oraxen" to "gatekeeper_straightsword"] = WeaponArt(
+		"air wave", 30, 10000, WeaponArtType.Interact
+	) {
+		val target = it.position.clone().add(it.position.direction.multiply(it.time / 2.0))
+		var h = 0.0
+		while (h < 3) {
+			it.position.world.spawnParticle(
+				Particle.CLOUD, target.clone().add(0.0, h, 0.0), 2, 0.05, 0.0, 0.05, 0.01
+			)
+			h += 0.15
+		}
+		val entities = target.clone().add(0.0, 1.5, 0.0).getNearbyEntities(0.5, 1.5, 0.5)
+		for (entity in entities) {
+			if (entity !is LivingEntity || entity == it.player) continue
+			if (entity.noDamageTicks > 0) entity.noDamageTicks = 0
+			attackEntity(it.player, entity, 1.0, 0.0, 1.2)
 		}
 	}
 }
