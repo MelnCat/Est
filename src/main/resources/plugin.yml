@@ -1,16 +1,15 @@
 name: Est
-main: cf.melncat.est.Est
+main: dev.melncat.est.Est
 version: 1.0.0
 depend:
-  - ProtocolLib
-  - NBTAPI
   - ItemBridge
   - Vault
   - Furcation
+  - GSit
 libraries:
   - org.graalvm.js:js:22.1.0
   - org.graalvm.js:js-scriptengine:22.1.0
   - org.graalvm.truffle:truffle-api:22.1.0
   - org.graalvm.sdk:graal-sdk:22.1.0
 
-api-version: 1.18
+api-version: 1.19
