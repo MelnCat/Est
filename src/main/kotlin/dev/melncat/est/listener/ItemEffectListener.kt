@@ -3,6 +3,7 @@ package dev.melncat.est.listener
 import dev.melncat.est.util.ARMOR_EFFECT_KEY
 import dev.melncat.est.util.get
 import dev.melncat.est.util.has
+import dev.melncat.est.util.isAir
 import dev.melncat.est.util.pd
 import dev.melncat.furcation.plugin.loaders.FListener
 import dev.melncat.furcation.plugin.loaders.RegisterListener
@@ -11,6 +12,7 @@ import dev.melncat.furcation.util.component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.inventory.ItemFlag.HIDE_POTION_EFFECTS
 import org.bukkit.potion.PotionEffect
 import org.purpurmc.purpur.event.packet.NetworkItemSerializeEvent
 import org.purpurmc.purpur.language.Language
@@ -20,7 +22,8 @@ object ItemEffectListener : FListener {
 	@EventHandler
 	fun onSerialize(event: NetworkItemSerializeEvent) {
 		val item = event.itemStack
-		if (!item.hasItemMeta() || !item.itemMeta.pd.has<Array<PotionEffect>>(ARMOR_EFFECT_KEY)) return
+		if (item.isAir) return
+		if (!item.hasItemMeta() || !item.itemMeta.pd.has<Array<PotionEffect>>(ARMOR_EFFECT_KEY) || item.hasItemFlag(HIDE_POTION_EFFECTS)) return
 		val effects = item.itemMeta.pd.get<Array<PotionEffect>>(ARMOR_EFFECT_KEY) ?: return
 		val newLore =
 			effects.map {

@@ -1,65 +1,196 @@
 package dev.melncat.est.weaponarts
 
 
-import dev.melncat.est.util.attackEntity
-import dev.melncat.furcation.util.NTC
-import dev.melncat.furcation.util.component
-import org.bukkit.Color
+import dev.melncat.est.util.EstKey
+import dev.melncat.est.util.get
+import dev.melncat.est.util.has
+import dev.melncat.furcation.util.mm
+import io.th0rgal.oraxen.items.OraxenItems
+import net.kyori.adventure.key.Key
+import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
-import org.bukkit.Particle
-import org.bukkit.Particle.DustOptions
-import org.bukkit.Particle.DustTransition
-import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
-import org.bukkit.util.Vector
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.random.Random
+import java.util.UUID
+import kotlin.time.Duration
+import kotlin.time.DurationUnit.MILLISECONDS
 
-enum class WeaponArtType {
-	Interact, Entity
+enum class WeaponArtActivation {
+	Interact, InteractEntity
 }
 
-data class ActiveWeaponArt(
-	val art: WeaponArt,
+data class ActiveWeaponArt<T>(
+	val art: WeaponArt<T>,
 	val position: Location,
 	val player: Player,
 	val entity: LivingEntity,
 	val item: ItemStack,
 	var time: Int = 0,
-	var state: Any = art.defaultState()
+	var duration: Int = art.duration
 ) {
-	@Suppress("unused")
+	var state: T = art.defaultState(this)
+	val firstTick: Boolean
+		get() = time == 0
+	val lastTick: Boolean
+		get() = time == duration - 1
+
 	fun end() {
 		time = -1
 	}
 }
 
-data class WeaponArt(
-	val name: String,
+data class WeaponArt<T>(
+	val id: String,
+	val name: Component,
 	val duration: Int,
 	val cooldown: Int,
-	val type: WeaponArtType = WeaponArtType.Entity,
-	val defaultState: () -> Any = { 0 },
-	val cb: (ActiveWeaponArt) -> Unit,
+	val activation: WeaponArtActivation = WeaponArtActivation.Interact,
+	val defaultState: (ActiveWeaponArt<*>) -> T,
+	val cb: (ActiveWeaponArt<T>) -> Unit,
+	val onAttack: (EntityDamageByEntityEvent, ActiveWeaponArt<T>) -> Unit
 )
 
-val weaponArtMap = mutableMapOf<NamespacedKey, WeaponArt>()
-val ibWeaponArtMap = mutableMapOf<Pair<String, String>, WeaponArt>()
-val activeWeaponArts = mutableListOf<ActiveWeaponArt>()
+data class WeaponArtBuilder<T>(val id: String, var defaultState: (ActiveWeaponArt<*>) -> T) {
+	private var name: Component? = null
+	private var duration: Int = 1
+	private var cooldown: Int? = null
+	private var activation: WeaponArtActivation = WeaponArtActivation.Interact
+	private var executor: (ActiveWeaponArt<T>) -> Unit = {}
+	private var onAttack: (EntityDamageByEntityEvent, ActiveWeaponArt<T>) -> Unit = { _, _ -> }
 
+	fun name(str: String) {
+		name(str.mm())
+	}
+
+	fun name(component: Component) {
+		name = component
+	}
+
+	fun duration(dur: Duration) {
+		duration(dur.toInt(MILLISECONDS) / 50)
+	}
+
+	fun duration(ticks: Int) {
+		duration = ticks
+	}
+
+	fun cooldown(dur: Duration) {
+		cooldown(dur.toInt(MILLISECONDS))
+	}
+
+	fun cooldown(ms: Int) {
+		cooldown = ms
+	}
+
+	fun activation(act: WeaponArtActivation) {
+		activation = act
+	}
+
+	fun executor(exec: (ActiveWeaponArt<T>) -> Unit) {
+		executor = exec
+	}
+
+	fun onAttack(exec: (event: EntityDamageByEntityEvent, wp: ActiveWeaponArt<T>) -> Unit) {
+		onAttack = exec
+	}
+
+	fun defaultState(state: (ActiveWeaponArt<*>) -> T) {
+		defaultState = state
+	}
+
+	fun build() = WeaponArt(id, name!!, duration, cooldown!!, activation, defaultState, executor, onAttack)
+}
+
+const val particleViewDistance = 32
+
+@Suppress("UNCHECKED_CAST")
+object WeaponArtRegistry {
+	private val registered = mutableMapOf<String, WeaponArt<*>>()
+	private val lookup = mutableMapOf<Key, WeaponArt<*>>()
+
+	private operator fun Map<Key, WeaponArt<*>>.get(key: Pair<String, String>) = this[Key.key(key.first, key.second)]
+	private operator fun MutableMap<Key, WeaponArt<*>>.set(key: Pair<String, String>, value: WeaponArt<*>) =
+		put(Key.key(key.first, key.second), value)
+
+	private operator fun Map<Key, WeaponArt<*>>.get(key: Material) = this[key.key]
+	private operator fun MutableMap<Key, WeaponArt<*>>.set(key: Material, value: WeaponArt<*>) = put(key.key, value)
+
+	val ids: Set<String>
+		get() = registered.keys
+	val weaponArts: Collection<WeaponArt<*>>
+		get() = registered.values
+
+	fun fromId(id: String) = registered[id]
+
+
+	fun <T> register(
+		id: String,
+		defaultState: (ActiveWeaponArt<*>) -> T = { Unit as T },
+		cb: WeaponArtBuilder<T>.() -> Unit
+	) = WeaponArtBuilder(id, defaultState).apply(cb).build().also { registered[it.id] = it }
+
+	fun register(id: String, cb: WeaponArtBuilder<Unit>.() -> Unit) =
+		WeaponArtBuilder(id) {}.apply(cb).build().also { registered[it.id] = it }
+
+	fun fromItem(item: ItemStack) =
+		item.persistentDataContainer.get<String>(EstKey.weaponArtOverride).let { registered[it] }
+		?: OraxenItems.getIdByItem(item)?.let { lookup["oraxen" to it] }
+		?: lookup[item.type.key()]
+
+	fun WeaponArt<*>.item(material: Material) = also { lookup[material.key] = this }
+	fun WeaponArt<*>.item(key: Pair<String, String>) = also { lookup[key] = this }
+	fun WeaponArt<*>.oraxen(key: String) = item("oraxen" to key)
+
+}
+
+object ActiveWeaponArts {
+	val active = mutableSetOf<ActiveWeaponArt<*>>()
+	data class CooldownData(val start: Long, val end: Long)
+
+	val cooldowns = mutableMapOf<UUID, CooldownData>()
+
+	fun executeWeaponArt(art: WeaponArt<*>, player: Player, item: ItemStack, entity: LivingEntity = player): Boolean {
+		active.add(
+			ActiveWeaponArt(
+				art,
+				player.location,
+				player,
+				entity,
+				item
+			)
+		)
+		val end = System.currentTimeMillis() + art.cooldown
+		cooldowns[player.uniqueId] =
+			CooldownData(System.currentTimeMillis(), end)
+		return true
+	}
+	fun executeWeaponArt(art: WeaponArt<*>, event: PlayerInteractEvent): Boolean {
+		val entity = event.player.getTargetEntity(5) as? LivingEntity
+		if (art.activation == WeaponArtActivation.InteractEntity && entity == null) return false
+		return executeWeaponArt(art, event.player, event.item!!, entity ?: event.player)
+	}
+
+	fun hasCooldown(player: UUID) = cooldowns.containsKey(player)
+	fun hasCooldown(player: Player) = hasCooldown(player.uniqueId)
+	fun inCooldown(player: UUID)
+		= hasCooldown(player) && cooldowns[player]!!.end > System.currentTimeMillis()
+	fun inCooldown(player: Player) = inCooldown(player.uniqueId)
+	fun resetCooldown(player: UUID) = cooldowns.remove(player)
+	fun resetCooldown(player: Player) = resetCooldown(player.uniqueId)
+}
+
+
+@Suppress("UNCHECKED_CAST")
 fun tickWeaponArts() {
-	val iterator = activeWeaponArts.listIterator()
+	val iterator = ActiveWeaponArts.active.iterator()
 	while (iterator.hasNext()) {
-		val art = iterator.next()
+		val art = iterator.next() as ActiveWeaponArt<Any>
 		art.art.cb(art)
-		if (art.time == -1 || art.time > art.art.duration - 1) {
+		if (art.time == -1 || art.time >= art.duration - 1) {
 			iterator.remove()
 			continue
 		}
@@ -68,260 +199,7 @@ fun tickWeaponArts() {
 	}
 }
 
-fun defaultWeaponArts() {
-	weaponArtMap[Material.WOODEN_SWORD.key] = WeaponArt(
-		"Home Run", 1, 10000
-	) {
-		it.entity.world.spawnParticle(
-			Particle.FIREWORKS_SPARK,
-			it.entity.location,
-			30,
-			0.0,
-			0.0,
-			0.0,
-			0.13
-		)
-		attackEntity(it.player, it.entity, 8.0, 0.0, 1.2)
-	}
-	val stoneSwordEffects = listOf(
-		PotionEffect(PotionEffectType.SLOW, 200, 9),
-		PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 3)
-	)
-	weaponArtMap[Material.STONE_SWORD.key] = WeaponArt(
-		"human boulder", 1, 60000, WeaponArtType.Interact
-	) {
-		it.player.world.spawnParticle(
-			Particle.TOTEM,
-			it.player.location.add(0.0, 1.0, 0.0),
-			120,
-			0.0,
-			0.0,
-			0.0,
-			0.4
-		)
-		it.player.addPotionEffects(stoneSwordEffects)
-	}
-	val ironSwordEffects = listOf(
-		PotionEffect(PotionEffectType.INCREASE_DAMAGE, 200, 0),
-		PotionEffect(PotionEffectType.SLOW, 200, 0),
-		PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 0)
-	)
-	weaponArtMap[Material.IRON_SWORD.key] = WeaponArt(
-		"ferrous form", 1, 120000, WeaponArtType.Interact
-	) {
-		it.player.world.spawnParticle(
-			Particle.TOTEM,
-			it.player.location.add(0.0, 1.0, 0.0),
-			120,
-			0.0,
-			0.0,
-			0.0,
-			0.4
-		)
-		it.player.addPotionEffects(ironSwordEffects)
-	}
-	weaponArtMap[Material.GOLDEN_SWORD.key] = WeaponArt(
-		"made in astria", 1, 30000
-	) {
-		it.player.world.spawnParticle(
-			Particle.CRIT_MAGIC,
-			it.entity.location,
-			22,
-			0.0,
-			0.0,
-			0.0,
-			0.4
-		)
-		attackEntity(it.player, it.entity, 10.0)
-		it.item.subtract()
-	}
-	val totalAngle = Math.PI / 3 * 2
-	weaponArtMap[Material.DIAMOND_SWORD.key] = WeaponArt(
-		"wave of radiance", 8 * 5, 5000, WeaponArtType.Interact
-	) {
-		val time = it.time % 8
-		var angle = totalAngle / 8 * time
-		val endAngle = totalAngle / 8 * (time + 1)
-		while (angle < endAngle) {
-			val x = it.position.x + sin(-Math.PI / 3 + angle - it.position.yaw * (Math.PI / 180)) * 2
-			val z = it.position.z + cos(-Math.PI / 3 + angle - it.position.yaw * (Math.PI / 180)) * 2
-			for (h in 5..20) {
-				it.position.world.spawnParticle(
-					Particle.DUST_COLOR_TRANSITION,
-					it.position.x + sin(-Math.PI / 3 + angle - it.position.yaw * (Math.PI / 180)) * 2,
-					it.position.y + h / 10.0,
-					it.position.z + cos(-Math.PI / 3 + angle - it.position.yaw * (Math.PI / 180)) * 2,
-					1,
-					0.0,
-					0.0,
-					0.0,
-					DustTransition(
-						Color.fromRGB(Random.nextInt(0x1000000)),
-						Color.fromRGB(Random.nextInt(0x1000000)),
-						1.5f
-					)
-				)
-			}
-			angle += 0.1
-			val entities = Location(it.position.world, x, it.position.y + 1, z).getNearbyEntities(0.5, 1.5, 0.5)
-			if (entities.isNotEmpty()) {
-				entities.map { e ->
-					if (e is AbstractArrow) e.velocity = e.velocity.multiply(1)
-					if (e is LivingEntity) e.damage(2.0, it.player)
-				}
-			}
-		}
-	}
-	weaponArtMap[Material.NETHERITE_SWORD.key] = WeaponArt(
-		"pillar of fire", 4 * 20, 10000, WeaponArtType.Interact
-	) {
-		val target = it.position.clone().add(it.position.direction.multiply(it.time / 2.0))
-		var h = 0.0
-		while (h < 3) {
-			it.position.world.spawnParticle(
-				Particle.FLAME, target.clone().add(0.0, h, 0.0), 2, 0.05, 0.0, 0.05, 0.01
-			)
-			it.position.world.spawnParticle(
-				Particle.PORTAL, target.clone().add(0.0, h, 0.0), 2, 0.25, 0.25, 0.25, 0.01
-			)
-			h += 0.15
-		}
-		val entities = target.clone().add(0.0, 1.5, 0.0).getNearbyEntities(0.5, 1.5, 0.5)
-		for (entity in entities) {
-			if (entity !is LivingEntity || entity == it.player) continue
-			if (entity.noDamageTicks > 0) entity.noDamageTicks = 0
-			entity.damage(5.0, it.player)
-			entity.fireTicks = 200
-		}
-	}
-	val shortswordEffects = listOf(
-		PotionEffect(PotionEffectType.SPEED, 200, 1),
-		PotionEffect(PotionEffectType.INCREASE_DAMAGE, 200, 1)
-	)
-	ibWeaponArtMap["oraxen" to "shortsword"] = WeaponArt(
-		"fight or flight", 0, 30000, WeaponArtType.Interact
-	) {
-		it.player.world.spawnParticle(
-			Particle.CLOUD,
-			it.player.location.add(0.0, 1.0, 0.0),
-			60,
-			0.0,
-			0.0,
-			0.0,
-			0.4
-		)
-		it.player.addPotionEffect(shortswordEffects[Random.nextInt(shortswordEffects.size)])
-	}
-	val bloodguardSaberEffects = listOf(
-		PotionEffect(PotionEffectType.INCREASE_DAMAGE, 600, 2),
-		PotionEffect(PotionEffectType.WITHER, 600, 2)
-	)
-	val bloodguardColor = DustOptions(Color.fromRGB(0xff0000), 2f)
-	ibWeaponArtMap["oraxen" to "bloodguard_saber"] = WeaponArt(
-		"bloodguard saber thing idk", 0, 40000, WeaponArtType.Interact
-	) {
-		it.player.world.spawnParticle(
-			Particle.REDSTONE,
-			it.player.location.add(0.0, 1.0, 0.0),
-			60,
-			2.0,
-			2.0,
-			2.0,
-			bloodguardColor
-		)
-		it.player.addPotionEffects(bloodguardSaberEffects)
-	}
-	val serpentFangColor = DustTransition(Color.fromRGB(0x29d91c), Color.fromRGB(0x6f2091), 1.7f)
-	val serpentFangEffects = PotionEffect(PotionEffectType.POISON, 100, 5)
-	ibWeaponArtMap["oraxen" to "serpent_fang"] = WeaponArt(
-		"serpent fang", 15, 20000, WeaponArtType.Interact
-	) {
-		val target = it.position.clone().add(0.0, 1.0, 0.0).add(it.position.direction.multiply(it.time / 2.0))
-		it.position.world.spawnParticle(
-			Particle.DUST_COLOR_TRANSITION, target, 2, 0.0, 0.0, 0.0, serpentFangColor
-		)
-		val entities = target.clone().add(0.0, 1.5, 0.0).getNearbyEntities(0.5, 1.5, 0.5)
-		for (entity in entities) {
-			if (entity !is LivingEntity || entity == it.player) continue
-			entity.addPotionEffect(serpentFangEffects)
-			entity.damage(8.0, it.player)
-		}
-	}
-	ibWeaponArtMap["oraxen" to "dagger"] = WeaponArt(
-		"quickstep", 1, 5000, WeaponArtType.Interact
-	) {
-		it.player.world.spawnParticle(
-			Particle.CLOUD,
-			it.player.location,
-			60,
-			0.0,
-			0.0,
-			0.0,
-			0.4
-		)
-		it.player.velocity = it.player.velocity.add(it.position.direction.multiply(1.2))
-	}
-	val frostfireStraightswordEffects = listOf(
-		PotionEffect(PotionEffectType.SLOW, 200, 1)
-	)
-	ibWeaponArtMap["oraxen" to "frostfire_straightsword"] = WeaponArt(
-		"frostfire", 30, 20000, WeaponArtType.Interact
-	) {
-		val target = it.position.clone().add(0.0, 1.0, 0.0).add(it.position.direction.multiply(it.time / 3.0))
-		var h = 0.0
-		while (h < 1.7) {
-			val loc = target.clone()
-				.add(Vector(0.0, h - 0.85, 0.0).rotateAroundAxis(it.position.direction, it.time * 0.2))
-			val loc2 = target.clone()
-				.add(Vector(0.0, h - 0.85, 0.0).rotateAroundAxis(it.position.direction, it.time * 0.2 + Math.PI / 2))
-			it.position.world.spawnParticle(
-				Particle.ENCHANTMENT_TABLE, loc, 1, 0.0, 0.0, 0.0, 0.01
-			)
-			it.position.world.spawnParticle(
-				Particle.ENCHANTMENT_TABLE, loc2, 1, 0.0, 0.0, 0.0, 0.01
-			)
-			it.position.world.spawnParticle(
-				Particle.SOUL_FIRE_FLAME, loc, 1, 0.0, 0.0, 0.0, 0.01
-			)
-			it.position.world.spawnParticle(
-				Particle.FLAME, loc2, 1, 0.0, 0.0, 0.0, 0.01
-			)
-			h += 0.1
-		}
-		val entities = target.clone().add(0.0, 1.5, 0.0).getNearbyEntities(0.5, 1.5, 0.5)
-		for (entity in entities) {
-			if (entity !is LivingEntity || entity == it.player) continue
-			entity.damage(12.0, it.player)
-			entity.fireTicks = 200
-			entity.freezeTicks = 200
-			entity.addPotionEffects(frostfireStraightswordEffects)
-		}
-	}
-	ibWeaponArtMap["oraxen" to "maozesword"] = WeaponArt(
-		"mao", 20, 20000, WeaponArtType.Interact
-	) {
-		if (it.time % 4 == 0) {
-			(it.player.getNearbyEntities(3.0, 3.0, 3.0) + it.player).forEach {
-				p -> if (p is Player) p.sendMessage("+1000 SOCIAL CREDIT".component(NTC.GREEN))
-			}
-		}
-	}
-	ibWeaponArtMap["oraxen" to "gatekeeper_straightsword"] = WeaponArt(
-		"air wave", 30, 10000, WeaponArtType.Interact
-	) {
-		val target = it.position.clone().add(it.position.direction.multiply(it.time / 2.0))
-		var h = 0.0
-		while (h < 3) {
-			it.position.world.spawnParticle(
-				Particle.CLOUD, target.clone().add(0.0, h, 0.0), 2, 0.05, 0.0, 0.05, 0.01
-			)
-			h += 0.15
-		}
-		val entities = target.clone().add(0.0, 1.5, 0.0).getNearbyEntities(0.5, 1.5, 0.5)
-		for (entity in entities) {
-			if (entity !is LivingEntity || entity == it.player) continue
-			if (entity.noDamageTicks > 0) entity.noDamageTicks = 0
-			attackEntity(it.player, entity, 1.0, 0.0, 1.2)
-		}
-	}
+fun registerDefaultWeaponArts() {
+	WeaponArtRegistry.registerVanilla()
+	WeaponArtRegistry.registerCustom()
 }

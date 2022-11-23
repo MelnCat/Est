@@ -5,7 +5,13 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.*
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtUtils
+import net.minecraft.nbt.SnbtPrinterTagVisitor
+import net.minecraft.nbt.TagParser
 import org.bukkit.NamespacedKey
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
+import org.bukkit.inventory.ItemStack
 
 object NamespacedKeySerializer : KSerializer<NamespacedKey> {
 	override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("key", PrimitiveKind.STRING)
@@ -13,3 +19,8 @@ object NamespacedKeySerializer : KSerializer<NamespacedKey> {
 	override fun deserialize(decoder: Decoder): NamespacedKey =
 		NamespacedKey.fromString(decoder.decodeString()) ?: throw IllegalArgumentException("Invalid NamespacedKey.")
 }
+
+fun ItemStack.serializeToString(): String = SnbtPrinterTagVisitor().visit(CraftItemStack.asNMSCopy(this).save(CompoundTag()))
+
+fun itemFromString(str: String): ItemStack = CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.of(TagParser.parseTag(str)))
+

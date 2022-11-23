@@ -1,6 +1,7 @@
 package dev.melncat.est.util
 
 import dev.melncat.est.plugin
+import dev.melncat.est.util.CustomAttributeOperation.Add
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -41,6 +42,8 @@ fun <T : Any> matchPDataType(type: KClass<T>) = when (type) {
 	PotionEffect::class -> PotionEffectPDType
 	Array<String>::class -> Utf8ArrayPDType
 	Array<PotionEffect>::class -> containerArrayPDType(PotionEffectPDType)
+	CustomAttributeModifier::class -> CustomAttributeModifierPDType
+	Array<CustomAttributeModifier>::class -> containerArrayPDType(CustomAttributeModifierPDType)
 	else -> throw IllegalArgumentException("Invalid persistent data type ${type.qualifiedName} / ${type.java.name}")
 } as PersistentDataType<T, T>
 
@@ -147,6 +150,29 @@ private object PotionEffectPDType : PersistentDataType<PDC, PotionEffect> {
 	}
 }
 
+private object CustomAttributeModifierPDType : PersistentDataType<PDC, CustomAttributeModifier> {
+	override fun getPrimitiveType() = PDC::class.java
+
+	override fun getComplexType() = CustomAttributeModifier::class.java
+
+	override fun toPrimitive(modifier: CustomAttributeModifier, ctx: PersistentDataAdapterContext): PDC {
+		return ctx.newPersistentDataContainer()
+			.apply {
+				set("type", modifier.type.id)
+				set("operation", modifier.operation.name)
+				set("amount", modifier.amount)
+			}
+	}
+
+	override fun fromPrimitive(container: PDC, ctx: PersistentDataAdapterContext): CustomAttributeModifier {
+		return CustomAttributeModifier(
+			CustomAttributeRegistry[container.get("type")!!]!!,
+			CustomAttributeOperation.valueOf(container.get("operation")!!),
+			container.get("amount")!!
+		)
+	}
+}
+
 private object BooleanPDType : PersistentDataType<Byte, Boolean> {
 	override fun getPrimitiveType() = Byte::class.javaObjectType
 
@@ -203,4 +229,12 @@ abstract class PDCSerializable(protected val tag: PersistentDataContainer) {
 
 	protected inline fun <reified T: Any> pd(key: String, default: T)
 			= PDataDelegate(key, matchPDataType(T::class), default)
+}
+
+inline operator fun <reified T : Any> PersistentDataContainer.getValue(thisRef: Any, property: KProperty<*>): T {
+	return get(property.name, matchPDataType(T::class)) as T
+}
+
+inline operator fun <reified T : Any> PersistentDataContainer.setValue(thisRef: Any, property: KProperty<*>, newValue: T) {
+	set(property.name, matchPDataType(T::class), newValue)
 }

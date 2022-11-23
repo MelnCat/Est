@@ -16,7 +16,7 @@ fun tickItemEffects() {
 				it
 			)
 		}
-		player.inventory.armorContents?.forEach {
+		player.inventory.armorContents!!.forEach {
 			if (it !== null) applyArmorEffect(
 				player,
 				it, true

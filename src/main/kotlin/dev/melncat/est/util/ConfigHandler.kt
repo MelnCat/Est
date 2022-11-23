@@ -39,7 +39,8 @@ data class Config(
 	val fireballs: FireballConfig = FireballConfig(),
 	val itemBridgeNamespace: String = "esti",
 	val removeItemsInContainers: Boolean = false,
-	val disableEnderChests: Boolean = false
+	val disableEnderChests: Boolean = false,
+	val webhookUrl: String? = null
 )
 
 fun loadConfig() {

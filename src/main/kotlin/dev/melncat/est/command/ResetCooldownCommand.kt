@@ -2,8 +2,7 @@ package dev.melncat.est.command
 
 import cloud.commandframework.kotlin.extension.buildAndRegister
 import cloud.commandframework.paper.PaperCommandManager
-import dev.melncat.est.listener.resetCooldown
-import dev.melncat.est.util.usageError
+import dev.melncat.est.weaponarts.ActiveWeaponArts.resetCooldown
 import dev.melncat.furcation.plugin.loaders.FCommand
 import dev.melncat.furcation.plugin.loaders.RegisterCommand
 import dev.melncat.furcation.util.mm

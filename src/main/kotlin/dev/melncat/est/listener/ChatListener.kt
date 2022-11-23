@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent
 object ChatListener : FListener {
 	@EventHandler
 	fun onCommandPreprocess(event: PlayerCommandPreprocessEvent) {
-		if (event.message.contains("e rename ", true)) event.message =
-			event.message.replace("e rename ", "e rename &f", true)
+		if (event.message.contains("ie rename", true)) event.message =
+			event.message.replace("ie rename", "rename", true)
 	}
 }

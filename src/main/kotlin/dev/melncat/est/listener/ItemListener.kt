@@ -1,5 +1,6 @@
 package dev.melncat.est.listener
 
+import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent
 import dev.melncat.est.eco
 import dev.melncat.est.util.config
 import dev.melncat.est.util.get
@@ -13,9 +14,12 @@ import dev.melncat.furcation.util.mm
 import net.minecraft.util.Mth.clamp
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Item
+import org.bukkit.event.Event.Result.DENY
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority.HIGH
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
 import org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.inventory.PrepareAnvilEvent
@@ -51,18 +55,41 @@ object ItemListener : FListener {
 				"coin_1" -> 1
 				"coin_10" -> 10
 				"coin_100" -> 100
+				"coin_1000" -> 1000
 				else -> null
 			} else null
 
 	@EventHandler
+	fun coinCreate(event: EntityAddToWorldEvent) {
+		val entity = event.entity as? Item ?: return
+		val worth = getCoinValue(entity.itemStack) ?: return
+		entity.isImmuneToCactus = true
+		entity.isImmuneToExplosion = true
+		entity.isImmuneToFire = true
+		entity.isImmuneToLightning = true
+	}
+
+	@EventHandler
 	fun pickupCoins(event: PlayerAttemptPickupItemEvent) {
+		if (event.item.thrower != null) return
 		val worth = getCoinValue(event.item.itemStack) ?: return
 		val count = event.item.itemStack.amount
 		eco.depositPlayer(event.player, (worth * count).toDouble())
-		event.player.sendMessage("<gray>You got <yellow>$<0></yellow>!".mm((worth * count).toString()))
+		event.player.sendMessage("<gray>You picked up <yellow>$<0></yellow>!".mm(worth * count))
 		event.isCancelled = true
 		event.player.playPickupItemAnimation(event.item)
 		event.item.remove()
+	}
+
+	@EventHandler
+	fun redeemCoins(event: PlayerInteractEvent) {
+		if (!event.action.isRightClick) return
+		val item = event.item ?: return
+		val worth = getCoinValue(item) ?: return
+		eco.depositPlayer(event.player, worth.toDouble())
+		item.subtract()
+		event.setUseInteractedBlock(DENY)
+		event.player.sendMessage("<gray>You got <yellow>$<0></yellow>!".mm(worth))
 	}
 
 	@EventHandler

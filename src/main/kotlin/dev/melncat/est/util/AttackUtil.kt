@@ -1,23 +1,30 @@
 package dev.melncat.est.util
 
 import org.bukkit.EntityEffect.HURT
+import org.bukkit.GameMode.CREATIVE
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 
 
-fun attackEntity(
-	player: Player,
+fun Player.attackWith(
 	entity: LivingEntity,
 	damage: Double = 0.0,
 	defaultDamage: Double = 0.0,
-	knockback: Double = 0.4
+	knockback: Double = 0.4,
+	melee: Boolean = false
 ) {
+	if (entity is Player && entity.gameMode == CREATIVE) return
+	if (entity == this) return
+	if (entity.isInvulnerable) return
 	entity.knockback(
 		knockback,
-		player.location.direction.multiply(-1),
-		player
+		-location.direction.x,
+		-location.direction.z
 	)
-	entity.damage(damage, player)
+	entity.damage(damage, this)
 	entity.playEffect(HURT)
-	player.swingMainHand()
+	if (melee) swingMainHand()
 }
+

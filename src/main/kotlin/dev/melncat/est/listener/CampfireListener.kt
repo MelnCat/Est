@@ -4,9 +4,12 @@ import com.destroystokyo.paper.ParticleBuilder
 import dev.geco.gsit.GSitMain
 import dev.geco.gsit.api.event.PlayerGetUpPlayerSitEvent
 import dev.geco.gsit.objects.GetUpReason.GET_UP
+import dev.melncat.est.util.lowest
 import dev.melncat.furcation.plugin.loaders.FListener
 import dev.melncat.furcation.plugin.loaders.RegisterListener
 import dev.melncat.furcation.util.mm
+import io.papermc.paper.command.PaperCommand
+import net.minecraft.server.commands.GiveCommand
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Material
@@ -36,7 +39,7 @@ private enum class CampfireType(val material: Material, val particle: ParticleBu
 			.offset(0.5, 0.5, 0.5)
 			.count(2)
 			.extra(1.0),
-		PotionEffect(PotionEffectType.REGENERATION, 40, 0, true)
+		PotionEffect(PotionEffectType.REGENERATION, 100, 0, true)
 	),
 	Soul(
 		SOUL_CAMPFIRE,
@@ -45,7 +48,7 @@ private enum class CampfireType(val material: Material, val particle: ParticleBu
 			.offset(0.5, 0.5, 0.5)
 			.count(2)
 			.extra(1.0),
-		PotionEffect(PotionEffectType.REGENERATION, 40, 2, true)
+		PotionEffect(PotionEffectType.REGENERATION, 100, 2, true)
 	)
 }
 
@@ -70,8 +73,7 @@ object CampfireListener : FListener {
 		if (event.hasItem() && smeltable.any { it.test(event.item!!) }) return
 		val seat =
 			GSitMain.getInstance().sitManager.createSeat(
-				if (event.player.location.block.isPassable) event.player.location.subtract(0.9, 0.0625, 0.9).block
-				else event.player.location.block, event.player
+				event.player.location.block.lowest(), event.player
 			)
 		if (seat == null) {
 			event.player.sendMessage("<red>You must be on flat terrain to rest at a campfire.".mm())
@@ -106,7 +108,7 @@ fun tickCampfireResting() {
 			player.setBedSpawnLocation(player.location, true)
 			player.sendActionBar("<yellow>Your spawn point has been set to this campfire.".mm())
 		}
-		if (data.type == CampfireType.Soul || (data.type == CampfireType.Normal && data.ticks % 10 == 0))
+		if (data.type == CampfireType.Soul || (data.type == CampfireType.Normal && data.ticks % 5 == 0))
 			for (item in player.inventory) {
 				if (item == null) continue
 				val meta = item.itemMeta
@@ -117,14 +119,14 @@ fun tickCampfireResting() {
 				}
 				item.itemMeta = meta
 			}
-		if (data.ticks % 4 == 0) {
-			for (i in 0 until 15) {
-				val angle = Math.PI * 2 / 15 * i
+		if (data.ticks % 10 == 0) {
+			for (i in 0 until 10) {
+				val angle = Math.PI * 2 / 10 * i
 				for (j in -2..10) {
 					val dy = j / 2.0
 					val radius = particleRadius * cos(asin(j / 10.0))
 					val pos = player.location.add(cos(angle) * radius, dy, sin(angle) * radius)
-					data.type.particle.location(pos).receivers(16).spawn()
+					data.type.particle.location(pos).receivers(player).spawn()
 				}
 			}
 		}

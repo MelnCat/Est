@@ -2,6 +2,7 @@ package dev.melncat.est.command
 
 import cloud.commandframework.kotlin.extension.buildAndRegister
 import cloud.commandframework.paper.PaperCommandManager
+import dev.melncat.est.util.isAir
 import dev.melncat.est.util.meta
 import dev.melncat.est.util.usageError
 import dev.melncat.furcation.plugin.loaders.FCommand
@@ -34,7 +35,7 @@ object ToBundleCommand : FCommand {
 				}
 				val bundle = ItemStack(Material.BUNDLE).meta<BundleMeta> {
 					val contents = (meta.blockState as? Container)?.inventory?.contents?.asList()
-					if (contents != null) setItems(contents)
+					if (contents != null) setItems(contents.filter { !it.isAir })
 				}
 				player.inventory.setItemInMainHand(bundle)
 			}
