@@ -4,6 +4,7 @@ import com.charleskorn.kaml.YamlPathSegment.Root.location
 import com.destroystokyo.paper.ParticleBuilder
 import com.jojodmo.itembridge.ItemBridge
 import dev.melncat.est.plugin
+import dev.melncat.est.weaponarts.particleViewDistance
 import dev.melncat.furcation.util.NTC
 import dev.melncat.furcation.util.component
 import kotlinx.coroutines.launch
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Particle
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace.DOWN
 import org.bukkit.command.CommandSender
@@ -110,3 +112,6 @@ fun Location.move(delta: Double = 0.1) {
 infix fun String.toKey(key: String) = NamespacedKey(this, key)
 
 fun key(key: String) = "est" toKey key
+
+fun ParticleBuilder.spawnDefault()
+	= receivers(particleViewDistance).spawn()

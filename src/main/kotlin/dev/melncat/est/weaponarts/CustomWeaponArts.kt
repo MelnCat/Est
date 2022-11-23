@@ -2,30 +2,20 @@ package dev.melncat.est.weaponarts
 
 import com.destroystokyo.paper.ParticleBuilder
 import dev.melncat.est.util.attackWith
-import dev.melncat.est.util.move
-import dev.melncat.est.weaponarts.WeaponArtActivation.InteractEntity
 import dev.melncat.furcation.util.NTC
 import dev.melncat.furcation.util.component
 import org.bukkit.Color
 import org.bukkit.EntityEffect
 import org.bukkit.GameMode.SURVIVAL
-import org.bukkit.Location
-import org.bukkit.Material.*
 import org.bukkit.Particle
 import org.bukkit.Particle.DustOptions
 import org.bukkit.Particle.DustTransition
-import org.bukkit.block.Block
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
-import org.bukkit.entity.Projectile
-import org.bukkit.entity.Snowball
-import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 

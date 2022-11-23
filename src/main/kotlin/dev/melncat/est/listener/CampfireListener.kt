@@ -20,6 +20,7 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.CampfireRecipe
 import org.bukkit.inventory.EquipmentSlot.HAND
@@ -97,6 +98,15 @@ object CampfireListener : FListener {
 	fun onPlayerSitUp(event: PlayerGetUpPlayerSitEvent) {
 		if (resting.containsKey(event.player))
 			resting.remove(event.player)
+	}
+
+	@EventHandler
+	fun onPlayerDamaged(event: EntityDamageEvent) {
+		val entity = event.entity as? Player ?: return
+		if (resting.remove(entity) != null) {
+			GSitMain.getInstance().sitManager.removeSeat(entity, GET_UP)
+			entity.sendMessage("<red>Your resting was interrupted.".mm())
+		}
 	}
 }
 

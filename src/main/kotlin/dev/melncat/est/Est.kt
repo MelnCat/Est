@@ -3,8 +3,6 @@ package dev.melncat.est
 import dev.melncat.est.command.tickParabolas
 import dev.melncat.est.listener.tickCampfireResting
 import dev.melncat.est.listener.tickWeaponArtCooldowns
-import dev.melncat.est.oraxen.AttributeMechanicFactory
-import dev.melncat.est.oraxen.ItemEffectMechanicFactory
 import dev.melncat.est.util.changeBlastResistance
 import dev.melncat.est.util.getRegistration
 import dev.melncat.est.util.loadConfig
@@ -17,9 +15,7 @@ import dev.melncat.est.weaponarts.tickWeaponArts
 import dev.melncat.furcation.plugin.FPlugin
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
-import io.netty.channel.ChannelPromise
 import io.papermc.paper.network.ChannelInitializeListenerHolder
-import io.th0rgal.oraxen.mechanics.MechanicsManager
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
@@ -51,14 +47,6 @@ class Est : FPlugin("dev.melncat.est") {
 				server.scheduler.runTaskTimer(0, 20 * 60 * 10, ::saveSocialCredit)
 			}
 		}
-		MechanicsManager.registerMechanicFactory(
-			"attribute",
-			::AttributeMechanicFactory
-		)
-		MechanicsManager.registerMechanicFactory(
-			"effect",
-			::ItemEffectMechanicFactory
-		)
 
 		ChannelInitializeListenerHolder.addListener(listenerKey) { channel ->
 			channel.pipeline()

@@ -202,4 +202,5 @@ fun tickWeaponArts() {
 fun registerDefaultWeaponArts() {
 	WeaponArtRegistry.registerVanilla()
 	WeaponArtRegistry.registerCustom()
+	WeaponArtRegistry.registerGeneric()
 }
