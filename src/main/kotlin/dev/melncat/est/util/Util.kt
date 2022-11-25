@@ -2,7 +2,6 @@ package dev.melncat.est.util
 
 import com.charleskorn.kaml.YamlPathSegment.Root.location
 import com.destroystokyo.paper.ParticleBuilder
-import com.jojodmo.itembridge.ItemBridge
 import dev.melncat.est.plugin
 import dev.melncat.est.weaponarts.particleViewDistance
 import dev.melncat.furcation.util.NTC
@@ -88,8 +87,6 @@ fun BukkitScheduler.runTaskLater(delay: Long, cb: () -> Unit)
 
 //fun BukkitScheduler.runTaskLater(delay: Long, cb: suspend () -> Unit)
 //		= runTaskLater(plugin, { -> runBlocking { launch { cb() } } }, delay)
-
-fun customItem(str: String): ItemStack = ItemBridge.getItemStack(config.itemBridgeNamespace, str)
 
 inline fun <reified T> ServicesManager.getRegistration()
 	= getRegistration(T::class.java)

@@ -32,13 +32,11 @@ dependencies {
 	compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 	compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
 	compileOnly("org.tukaani:xz:1.9")
-	compileOnly("com.github.jojodmo:ItemBridge:b0054538c1")
 	compileOnly("org.reflections:reflections:0.10.2")
 	compileOnly("org.graalvm.truffle:truffle-api:22.2.0")
 	compileOnly("cloud.commandframework:cloud-paper:1.7.1")
 	compileOnly("cloud.commandframework:cloud-kotlin-extensions:1.7.1")
 	compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.7.1")
-	compileOnly("com.github.stefvanschie.inventoryframework:IF:0.10.7")
 	compileOnly("xyz.xenondevs.nova:nova:0.11")
 	compileOnly(files("./lib/GSit-1.2.7.jar"))
 

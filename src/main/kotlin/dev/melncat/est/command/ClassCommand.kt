@@ -2,10 +2,13 @@ package dev.melncat.est.command
 
 import cloud.commandframework.kotlin.extension.buildAndRegister
 import cloud.commandframework.paper.PaperCommandManager
-import com.github.stefvanschie.inventoryframework.gui.GuiItem
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane
-import com.github.stefvanschie.inventoryframework.pane.Pane.Priority
+import de.studiocode.invui.gui.GUI
+import de.studiocode.invui.gui.builder.GUIBuilder
+import de.studiocode.invui.gui.builder.guitype.GUIType
+import de.studiocode.invui.item.ItemProvider
+import de.studiocode.invui.item.ItemWrapper
+import de.studiocode.invui.item.impl.BaseItem
+import de.studiocode.invui.window.impl.single.SimpleWindow
 import dev.melncat.est.plugin
 import dev.melncat.est.util.EstKey
 import dev.melncat.est.util.giveItems
@@ -14,10 +17,10 @@ import dev.melncat.est.util.set
 import dev.melncat.furcation.plugin.loaders.FCommand
 import dev.melncat.furcation.plugin.loaders.RegisterCommand
 import dev.melncat.furcation.util.mm
-import org.bukkit.Material
 import org.bukkit.Material.*
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 import org.yaml.snakeyaml.Yaml
@@ -28,11 +31,9 @@ import kotlin.random.Random
 @RegisterCommand
 object ClassCommand : FCommand {
 	private val yaml = Yaml()
-	private val classes = yaml.load<List<String>>(File(plugin.dataFolder, "classes.yml").readText()).map(::itemFromString)
-	private val backgroundPane = OutlinePane(0, 0, 9, 3, Priority.LOWEST).apply {
-		addItem(GuiItem(ItemStack(BLACK_STAINED_GLASS_PANE)))
-		setRepeat(true)
-	}
+	private val classes =
+		yaml.load<List<String>>(File(plugin.dataFolder, "classes.yml").readText()).map(::itemFromString)
+
 	override fun register(manager: PaperCommandManager<CommandSender>) {
 		manager.buildAndRegister("class") {
 			permission = "est.command.class"
@@ -45,27 +46,41 @@ object ClassCommand : FCommand {
 				}
 				val chosen = classes.toMutableList()
 				chosen.shuffle(Random(player.uniqueId.mostSignificantBits))
-				createGui(chosen.take(3))
-					.show(player)
+				SimpleWindow(
+					player,
+					"Choose your class:",
+					createGui(chosen.take(3))
+				)
 			}
 		}
 	}
 
-	private fun createGui(classes: List<ItemStack>): ChestGui {
-		val gui = ChestGui(3, "Choose your class:")
-		val pane = OutlinePane(0, 1, 9, 3)
-		gui.setOnGlobalClick { it.isCancelled = true }
-		pane.gap = 1
-		pane.align(OutlinePane.Alignment.CENTER)
-		for (clazz in classes) pane.addItem(GuiItem(clazz) {
-			if (it.whoClicked.persistentDataContainer.has(EstKey.hasStarterKit)) return@GuiItem
-			it.whoClicked.sendMessage("<green>You have claimed the <yellow><0></yellow> kit!".mm(clazz.displayName()))
-			it.whoClicked.persistentDataContainer.set(EstKey.hasStarterKit, true);
-			it.whoClicked.inventory.giveItems(listOf(clazz))
-			it.clickedInventory?.close()
-		})
-		gui.addPane(backgroundPane)
-		gui.addPane(pane)
-		return gui
+	private fun createGui(classes: List<ItemStack>): GUI {
+		return GUIBuilder(GUIType.NORMAL)
+			.setStructure(
+				"1 - - - - - - - 2",
+				"| # # # # # # # |",
+				"| # a # b # c # |",
+				"| # # # # # # # |",
+				"3 - - - - - - - 4"
+			)
+			.addIngredient('a', ClassItem(classes[0]))
+			.addIngredient('b', ClassItem(classes[1]))
+			.addIngredient('c', ClassItem(classes[2]))
+			.build()
+	}
+
+	private class ClassItem(val item: ItemStack) : BaseItem() {
+		override fun getItemProvider(): ItemProvider {
+			return ItemWrapper(item)
+		}
+
+		override fun handleClick(clickType: ClickType, player: Player, event: InventoryClickEvent) {
+			if (player.persistentDataContainer.has(EstKey.hasStarterKit)) return
+			player.sendMessage("<green>You have claimed the <yellow><0></yellow> kit!".mm(item.displayName()))
+			player.persistentDataContainer.set(EstKey.hasStarterKit, true);
+			player.inventory.giveItems(listOf(item))
+			player.closeInventory()
+		}
 	}
 }
