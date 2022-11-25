@@ -1,11 +1,12 @@
 package dev.melncat.est.util
 
-import io.th0rgal.oraxen.items.OraxenItems
 import org.bukkit.inventory.ItemStack
+import xyz.xenondevs.nova.material.ItemNovaMaterial
+import xyz.xenondevs.nova.material.NovaMaterialRegistry
 
 val coins = listOf(
 	1000, 100, 10, 1
-).associateWith { OraxenItems.getItemById("coin_$it") }
+).associateWith { NovaMaterialRegistry.get("est:coin_$it") }
 
 fun coinsFromValue(value: Int): List<ItemStack> {
 	val needed = mutableMapOf<Int, Int>()
@@ -16,5 +17,20 @@ fun coinsFromValue(value: Int): List<ItemStack> {
 		if (largest.key !in needed) needed[largest.key] = 1
 		else needed[largest.key] = needed[largest.key]!! + 1
 	}
-	return needed.flatMap { coins[it.key]!!.buildArray(it.value).toList() }
+	return needed.flatMap { getNovaItems(coins[it.key]!!, it.value) }
+}
+
+private fun getNovaItems(item: ItemNovaMaterial, count: Int): List<ItemStack> {
+	var n = count;
+	val list = mutableListOf<ItemStack>()
+	while (n > 0) {
+		if (n >= item.maxStackSize) {
+			list.add(item.createItemStack(item.maxStackSize))
+			n -= item.maxStackSize
+		} else {
+			list.add(item.createItemStack(n))
+			n = 0
+		}
+	}
+	return list
 }

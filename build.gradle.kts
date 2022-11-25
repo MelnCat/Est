@@ -17,6 +17,7 @@ repositories {
 	maven("https://repo.purpurmc.org/snapshots")
 	maven("https://jitpack.io")
 	maven("https://repo.codemc.org/repository/maven-public/")
+	maven("https://repo.xenondevs.xyz/releases")
 }
 
 dependencies {
@@ -38,7 +39,7 @@ dependencies {
 	compileOnly("cloud.commandframework:cloud-kotlin-extensions:1.7.1")
 	compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.7.1")
 	compileOnly("com.github.stefvanschie.inventoryframework:IF:0.10.7")
-	compileOnly(files("./lib/oraxen-1.143.3.jar"))
+	compileOnly("xyz.xenondevs.nova:nova:0.11")
 	compileOnly(files("./lib/GSit-1.2.7.jar"))
 
 	implementation("com.charleskorn.kaml:kaml:0.49.0")

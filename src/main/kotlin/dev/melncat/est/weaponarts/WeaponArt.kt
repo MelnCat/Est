@@ -3,9 +3,7 @@ package dev.melncat.est.weaponarts
 
 import dev.melncat.est.util.EstKey
 import dev.melncat.est.util.get
-import dev.melncat.est.util.has
 import dev.melncat.furcation.util.mm
-import io.th0rgal.oraxen.items.OraxenItems
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import org.bukkit.Location
@@ -15,6 +13,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import xyz.xenondevs.nova.material.NovaMaterialRegistry
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.DurationUnit.MILLISECONDS
@@ -138,12 +137,13 @@ object WeaponArtRegistry {
 
 	fun fromItem(item: ItemStack) =
 		item.persistentDataContainer.get<String>(EstKey.weaponArtOverride).let { registered[it] }
-		?: OraxenItems.getIdByItem(item)?.let { lookup["oraxen" to it] }
+		?: NovaMaterialRegistry.getOrNull(item)?.let { lookup[it.id.toNamespacedKey()] }
 		?: lookup[item.type.key()]
 
 	fun WeaponArt<*>.item(material: Material) = also { lookup[material.key] = this }
 	fun WeaponArt<*>.item(key: Pair<String, String>) = also { lookup[key] = this }
-	fun WeaponArt<*>.oraxen(key: String) = item("oraxen" to key)
+	fun WeaponArt<*>.item(key: Key) = also { lookup[key] = this }
+	fun WeaponArt<*>.custom(key: String) = item(Key.key(key))
 
 }
 
