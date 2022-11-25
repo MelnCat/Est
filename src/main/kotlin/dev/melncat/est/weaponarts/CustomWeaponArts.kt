@@ -39,7 +39,7 @@ fun WeaponArtRegistry.registerCustom() {
 			)
 			wp.player.addPotionEffects(effects)
 		}
-	}.oraxen("shortsword")
+	}.custom("est:shortsword")
 
 	register("sacrificial_blow") {
 		name("Sacrificial Blow")
@@ -63,7 +63,7 @@ fun WeaponArtRegistry.registerCustom() {
 			wp.player.health /= 4
 			wp.player.playEffect(EntityEffect.HURT)
 		}
-	}.oraxen("bloodguard_saber")
+	}.custom("est:bloodguard_saber")
 
 	register("venom_spray") {
 		name("Venom Spray")
@@ -83,7 +83,7 @@ fun WeaponArtRegistry.registerCustom() {
 				wp.player.attackWith(entity, 8.0)
 			}
 		}
-	}.oraxen("serpent_fang")
+	}.custom("est:serpent_fang")
 
 	register("dash") {
 		name("Dash")
@@ -101,7 +101,7 @@ fun WeaponArtRegistry.registerCustom() {
 			)
 			wp.player.velocity = wp.player.velocity.add(wp.position.direction.multiply(1.2))
 		}
-	}.oraxen("dagger")
+	}.custom("est:dagger")
 
 	register("frostfire_spiral") {
 		name("Frostfire Spiral")
@@ -142,7 +142,7 @@ fun WeaponArtRegistry.registerCustom() {
 				entity.addPotionEffects(effects)
 			}
 		}
-	}.oraxen("frostfire_straightsword")
+	}.custom("est:frostfire_straightsword")
 
 	register("social_credit") {
 		name("Social Credit")
@@ -156,7 +156,7 @@ fun WeaponArtRegistry.registerCustom() {
 				}
 			}
 		}
-	}.oraxen("maozesword")
+	}.custom("est:maozesword")
 
 	register("instant_severance") {
 		name("Instant Severance")
@@ -179,7 +179,7 @@ fun WeaponArtRegistry.registerCustom() {
 				it.player.attackWith(entity, 1.0, 0.0, 1.2)
 			}
 		}
-	}.oraxen("gatekeeper_straightsword")
+	}.custom("est:gatekeeper_straightsword")
 
 	register("cloudkill") {
 		name("Cloudkill")
@@ -217,7 +217,7 @@ fun WeaponArtRegistry.registerCustom() {
 
 			}
 		}
-	}.oraxen("etrus")
+	}.custom("est:etrus")
 
 	register("crystal_sweep") {
 		name("Crystal Sweep")
@@ -245,7 +245,7 @@ fun WeaponArtRegistry.registerCustom() {
 				}
 			}
 		}
-	}.oraxen("sword_amethyst")
+	}.custom("est:sword_amethyst")
 
 	register<Double>("peer_into_the_deep") {
 		name("Peer Into The Deep")
@@ -290,5 +290,5 @@ fun WeaponArtRegistry.registerCustom() {
 			)
 			wp.player.addPotionEffects(effects)
 		}
-	}.oraxen("shortsword")
+	}.custom("est:shortsword")
 }

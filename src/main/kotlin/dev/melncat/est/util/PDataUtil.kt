@@ -1,10 +1,6 @@
 package dev.melncat.est.util
 
 import dev.melncat.est.plugin
-import dev.melncat.est.util.CustomAttributeOperation.Add
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.bukkit.NamespacedKey
 import org.bukkit.persistence.PersistentDataAdapterContext
 import org.bukkit.persistence.PersistentDataContainer
@@ -17,7 +13,6 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.companionObject
 
 typealias PDC = PersistentDataContainer
 
@@ -42,8 +37,6 @@ fun <T : Any> matchPDataType(type: KClass<T>) = when (type) {
 	PotionEffect::class -> PotionEffectPDType
 	Array<String>::class -> Utf8ArrayPDType
 	Array<PotionEffect>::class -> containerArrayPDType(PotionEffectPDType)
-	CustomAttributeModifier::class -> CustomAttributeModifierPDType
-	Array<CustomAttributeModifier>::class -> containerArrayPDType(CustomAttributeModifierPDType)
 	else -> throw IllegalArgumentException("Invalid persistent data type ${type.qualifiedName} / ${type.java.name}")
 } as PersistentDataType<T, T>
 
@@ -146,29 +139,6 @@ private object PotionEffectPDType : PersistentDataType<PDC, PotionEffect> {
 			container.get("ambient") ?: true,
 			container.get("particles") ?: true,
 			container.get("icon") ?: container.get("particles") ?: true,
-		)
-	}
-}
-
-private object CustomAttributeModifierPDType : PersistentDataType<PDC, CustomAttributeModifier> {
-	override fun getPrimitiveType() = PDC::class.java
-
-	override fun getComplexType() = CustomAttributeModifier::class.java
-
-	override fun toPrimitive(modifier: CustomAttributeModifier, ctx: PersistentDataAdapterContext): PDC {
-		return ctx.newPersistentDataContainer()
-			.apply {
-				set("type", modifier.type.id)
-				set("operation", modifier.operation.name)
-				set("amount", modifier.amount)
-			}
-	}
-
-	override fun fromPrimitive(container: PDC, ctx: PersistentDataAdapterContext): CustomAttributeModifier {
-		return CustomAttributeModifier(
-			CustomAttributeRegistry[container.get("type")!!]!!,
-			CustomAttributeOperation.valueOf(container.get("operation")!!),
-			container.get("amount")!!
 		)
 	}
 }
