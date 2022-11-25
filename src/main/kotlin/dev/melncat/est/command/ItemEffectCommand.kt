@@ -29,7 +29,7 @@ object ItemEffectCommand : FCommand {
 				.withSuggestionsProvider { _, _ -> Registry.POTION_EFFECT_TYPE.map { it.key.toString() } })
 			argument(
 				IntegerArgument.newBuilder<CommandSender>("amplifier")
-					.withMin(0).withMax(255).asOptionalWithDefault(0)
+					.withMin(-1).withMax(255).asOptionalWithDefault(0)
 			)
 			argument(
 				IntegerArgument.newBuilder<CommandSender>("time")
