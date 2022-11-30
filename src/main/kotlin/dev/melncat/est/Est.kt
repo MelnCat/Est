@@ -43,6 +43,7 @@ class Est : FPlugin("dev.melncat.est") {
 			val nova = novaPlugin::class.java.getDeclaredMethod("getNova").invoke(novaPlugin)::class.java.classLoader
 			println(nova)
 			println(it.get(nova))
+			it.set(classLoader, it.get(classLoader))
 			it.set(classLoader, object : ClassLoader(it.get(classLoader) as ClassLoader) {
 				override fun loadClass(name: String): Class<*> {
 					try {
