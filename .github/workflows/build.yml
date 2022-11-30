@@ -1,0 +1,30 @@
+# This is a basic workflow that is manually triggered
+
+name: Build
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
+jobs:
+  build:
+    # Only run on PRs if the source branch is on someone else's repo
+    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 17 ]
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3.6.0
+        with:
+          java-version: ${{ matrix.java }}
+          cache: 'gradle'
+          distribution: 'temurin'
+      - name: Build
+        run: ./gradlew build --stacktrace
