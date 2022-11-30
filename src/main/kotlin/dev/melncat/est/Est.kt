@@ -23,6 +23,9 @@ import net.milkbowl.vault.economy.Economy
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.java.PluginClassLoader
+import xyz.xenondevs.nova.api.Nova
+import xyz.xenondevs.nova.material.NovaMaterialRegistry
 
 lateinit var plugin: Est private set
 lateinit var eco: Economy private set
@@ -31,6 +34,33 @@ private val listenerKey = Key.key("est", "listener")
 
 class Est : FPlugin("dev.melncat.est") {
 	override fun enable() {
+		// I love causing pain
+		PluginClassLoader::class.java.getDeclaredField("libraryLoader").let {
+			it.isAccessible = true
+			println(it.get(classLoader))
+			val nova = Nova.getNova()::class.java.classLoader
+			println(it.get(nova))
+			it.set(classLoader, object : ClassLoader(it.get(classLoader) as ClassLoader) {
+				override fun loadClass(name: String): Class<*> {
+					try {
+						println("loading $name")
+						println(nova.javaClass.name)
+						return nova.loadClass(name).also { println(nova.javaClass.name) }
+					} catch (_: ClassNotFoundException) {}
+					return super.loadClass(name)
+				}
+				override fun loadClass(name: String, resolve: Boolean): Class<*> {
+					try {
+						println("loading2 $name")
+						println(nova.javaClass.name)
+						return nova.loadClass(name).also { println(nova.javaClass.name) }
+					} catch (_: ClassNotFoundException) {}
+					return super.loadClass(name, resolve)
+				}
+			})
+			println(it.get(classLoader))
+		}
+		println(NovaMaterialRegistry.values.first().item.id)
 		plugin = this
 		eco = server.servicesManager.getRegistration<Economy>()!!.provider
 		loadConfig()
