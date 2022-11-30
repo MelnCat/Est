@@ -6,7 +6,6 @@ import dev.melncat.est.weaponarts.ActiveWeaponArt
 import dev.melncat.est.weaponarts.ActiveWeaponArts
 import dev.melncat.est.weaponarts.ActiveWeaponArts.cooldowns
 import dev.melncat.est.weaponarts.ActiveWeaponArts.resetCooldown
-import dev.melncat.est.weaponarts.WeaponArt
 import dev.melncat.est.weaponarts.WeaponArtRegistry
 import dev.melncat.furcation.plugin.loaders.RegisterListener
 import dev.melncat.furcation.util.mm
@@ -25,6 +24,8 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerRespawnEvent
+import xyz.xenondevs.nova.material.NovaMaterialRegistry
+import kotlin.reflect.full.memberFunctions
 
 @RegisterListener
 object WeaponListener : Listener {

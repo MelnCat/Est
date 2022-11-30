@@ -37,7 +37,7 @@ dependencies {
 	compileOnly("cloud.commandframework:cloud-paper:1.7.1")
 	compileOnly("cloud.commandframework:cloud-kotlin-extensions:1.7.1")
 	compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.7.1")
-	compileOnly("xyz.xenondevs.nova:nova:0.11")
+	compileOnly("xyz.xenondevs.nova:nova:0.12.5")
 	compileOnly(files("./lib/GSit-1.2.7.jar"))
 
 	implementation("com.charleskorn.kaml:kaml:0.49.0")
