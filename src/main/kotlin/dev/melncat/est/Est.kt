@@ -21,6 +21,7 @@ import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.milkbowl.vault.economy.Economy
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket
+import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.PluginClassLoader
@@ -38,7 +39,9 @@ class Est : FPlugin("dev.melncat.est") {
 		PluginClassLoader::class.java.getDeclaredField("libraryLoader").let {
 			it.isAccessible = true
 			println(it.get(classLoader))
-			val nova = Nova.getNova()::class.java.classLoader
+			val novaPlugin = Bukkit.getPluginManager().getPlugin("Nova")!!
+			val nova = novaPlugin::class.java.getDeclaredMethod("getNova").invoke(novaPlugin)::class.java.classLoader
+			println(nova)
 			println(it.get(nova))
 			it.set(classLoader, object : ClassLoader(it.get(classLoader) as ClassLoader) {
 				override fun loadClass(name: String): Class<*> {
