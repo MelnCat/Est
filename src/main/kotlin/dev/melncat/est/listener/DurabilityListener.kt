@@ -7,6 +7,7 @@ import dev.melncat.furcation.plugin.loaders.RegisterListener
 import dev.melncat.furcation.util.mm
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
+import org.bukkit.Material.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.inventory.EquipmentSlot
@@ -16,6 +17,7 @@ import java.util.UUID
 object DurabilityListener : FListener {
 	@EventHandler
 	fun onItemDamage(event: PlayerItemDamageEvent) {
+		if (event.item.type == SHULKER_SHELL) return
 		val remaining = event.item.type.maxDurability - event.damage
 		if (remaining <= 10)
 			event.player.sendMessage("<red>Warning! Your <yellow><0></yellow> only has <yellow><1></yellow> durability left!"
