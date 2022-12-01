@@ -50,7 +50,7 @@ object ClassCommand : FCommand {
 					player,
 					"Choose your class:",
 					createGui(chosen.take(3))
-				)
+				).show()
 			}
 		}
 	}

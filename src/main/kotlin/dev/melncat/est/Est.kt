@@ -1,5 +1,6 @@
 package dev.melncat.est
 
+import dev.melncat.est.classloader.EstClassLoader
 import dev.melncat.est.command.tickParabolas
 import dev.melncat.est.listener.tickCampfireResting
 import dev.melncat.est.listener.tickWeaponArtCooldowns
@@ -27,6 +28,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.PluginClassLoader
 import xyz.xenondevs.nova.api.Nova
 import xyz.xenondevs.nova.material.NovaMaterialRegistry
+import java.net.URLClassLoader
 
 lateinit var plugin: Est private set
 lateinit var eco: Economy private set
@@ -41,28 +43,9 @@ class Est : FPlugin("dev.melncat.est") {
 			println(it.get(classLoader))
 			val novaPlugin = Bukkit.getPluginManager().getPlugin("Nova")!!
 			val nova = novaPlugin::class.java.getDeclaredMethod("getNova").invoke(novaPlugin)::class.java.classLoader
-			println(nova)
-			println(it.get(nova))
 			it.set(classLoader, it.get(classLoader))
-			it.set(classLoader, object : ClassLoader(it.get(classLoader) as ClassLoader) {
-				override fun loadClass(name: String): Class<*> {
-					try {
-						println("loading $name")
-						println(nova.javaClass.name)
-						return nova.loadClass(name).also { println(nova.javaClass.name) }
-					} catch (_: ClassNotFoundException) {}
-					return super.loadClass(name)
-				}
-				override fun loadClass(name: String, resolve: Boolean): Class<*> {
-					try {
-						println("loading2 $name")
-						println(nova.javaClass.name)
-						return nova.loadClass(name).also { println(nova.javaClass.name) }
-					} catch (_: ClassNotFoundException) {}
-					return super.loadClass(name, resolve)
-				}
-			})
-			println(it.get(classLoader))
+			val libLoader = it.get(classLoader) as URLClassLoader
+			it.set(classLoader, EstClassLoader(nova, libLoader))
 		}
 		println(NovaMaterialRegistry.values.first().item.id)
 		plugin = this
