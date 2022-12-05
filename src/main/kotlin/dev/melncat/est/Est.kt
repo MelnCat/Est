@@ -40,10 +40,8 @@ class Est : FPlugin("dev.melncat.est") {
 		// I love causing pain
 		PluginClassLoader::class.java.getDeclaredField("libraryLoader").let {
 			it.isAccessible = true
-			println(it.get(classLoader))
 			val novaPlugin = Bukkit.getPluginManager().getPlugin("Nova")!!
 			val nova = novaPlugin::class.java.getDeclaredMethod("getNova").invoke(novaPlugin)::class.java.classLoader
-			it.set(classLoader, it.get(classLoader))
 			val libLoader = it.get(classLoader) as URLClassLoader
 			it.set(classLoader, EstClassLoader(nova, libLoader))
 		}
