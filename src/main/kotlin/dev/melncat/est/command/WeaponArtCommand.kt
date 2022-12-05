@@ -2,26 +2,20 @@ package dev.melncat.est.command
 
 import cloud.commandframework.arguments.standard.BooleanArgument
 import cloud.commandframework.arguments.standard.StringArgument
-import cloud.commandframework.kotlin.extension.buildAndRegister
 import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.paper.PaperCommandManager
 import dev.melncat.est.util.EstKey
 import dev.melncat.est.util.isAir
-import dev.melncat.est.util.meta
 import dev.melncat.est.util.set
-import dev.melncat.est.util.usageError
-import dev.melncat.est.weaponarts.ActiveWeaponArts
-import dev.melncat.est.weaponarts.WeaponArtRegistry
+import dev.melncat.est.weaponart.WeaponArtRegistry
 import dev.melncat.furcation.plugin.loaders.FCommand
 import dev.melncat.furcation.plugin.loaders.RegisterCommand
 import dev.melncat.furcation.util.mm
-import org.bukkit.Material
-import org.bukkit.block.Container
+import net.minecraft.world.entity.ai.attributes.Attribute
+import net.minecraft.world.entity.ai.attributes.AttributeMap
 import org.bukkit.command.CommandSender
+import org.bukkit.craftbukkit.v1_19_R1.attribute.CraftAttributeInstance
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.BlockStateMeta
-import org.bukkit.inventory.meta.BundleMeta
 
 @RegisterCommand
 object WeaponArtCommand : FCommand {

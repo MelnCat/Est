@@ -2,6 +2,7 @@ package dev.melncat.est.command
 
 import cloud.commandframework.kotlin.extension.buildAndRegister
 import cloud.commandframework.paper.PaperCommandManager
+import dev.melncat.est.listener.attacksSinceMiss
 import dev.melncat.est.plugin
 import dev.melncat.est.util.isAir
 import dev.melncat.est.util.itemFromString
@@ -63,6 +64,13 @@ object EstCommand : FCommand {
 				println(Class.forName("xyz.xenondevs.nova.material.NovaMaterialRegistry", false, classLoader))
 				println(Thread.currentThread().contextClassLoader)
 				println(NovaMaterialRegistry.values.map { it.id }.joinToString(", "))
+			}
+		}
+		est.registerCopy("test3") {
+			permission += ".test"
+			handler { ctx ->
+				val player = ctx.sender as? Player ?: return@handler
+				player.sendMessage((attacksSinceMiss[player.uniqueId] ?: 0).toString())
 			}
 		}
 	}

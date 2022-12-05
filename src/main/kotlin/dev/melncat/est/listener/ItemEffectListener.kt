@@ -52,7 +52,7 @@ private val numbers = linkedMapOf(
 	1 to "I"
 )
 
-private fun roman(number: Int): String {
+fun roman(number: Int): String {
 	for (i in numbers.keys) {
 		if (number >= i) {
 			return numbers[i] + roman(number - i)

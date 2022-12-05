@@ -1,9 +1,8 @@
 package dev.melncat.est.util
 
-import com.charleskorn.kaml.YamlPathSegment.Root.location
 import com.destroystokyo.paper.ParticleBuilder
 import dev.melncat.est.plugin
-import dev.melncat.est.weaponarts.particleViewDistance
+import dev.melncat.est.weaponart.particleViewDistance
 import dev.melncat.furcation.util.NTC
 import dev.melncat.furcation.util.component
 import kotlinx.coroutines.launch
@@ -12,7 +11,6 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.Particle
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace.DOWN
 import org.bukkit.command.CommandSender
@@ -20,11 +18,9 @@ import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import org.bukkit.inventory.meta.ItemMeta
-import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.plugin.ServicesManager
 import org.bukkit.scheduler.BukkitScheduler
-import org.bukkit.util.Vector
-import kotlin.reflect.KProperty
+import xyz.xenondevs.nova.material.NovaMaterialRegistry
 
 
 fun <T : Entity> CommandSender.matchEntity(str: String) = Bukkit.getServer().selectEntities(this, str)
@@ -112,3 +108,6 @@ fun key(key: String) = "est" toKey key
 
 fun ParticleBuilder.spawnDefault()
 	= receivers(particleViewDistance).spawn()
+
+val ItemStack.itemKey
+	get() = NovaMaterialRegistry.getOrNull(this)?.id?.toNamespacedKey() ?: type.key()

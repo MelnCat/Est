@@ -3,6 +3,7 @@ package dev.melncat.est
 import dev.melncat.est.classloader.EstClassLoader
 import dev.melncat.est.command.tickParabolas
 import dev.melncat.est.listener.tickCampfireResting
+import dev.melncat.est.listener.tickTraits
 import dev.melncat.est.listener.tickWeaponArtCooldowns
 import dev.melncat.est.util.changeBlastResistance
 import dev.melncat.est.util.getRegistration
@@ -11,8 +12,8 @@ import dev.melncat.est.util.loadSocialCredit
 import dev.melncat.est.util.runTaskTimer
 import dev.melncat.est.util.saveSocialCredit
 import dev.melncat.est.util.tickItemEffects
-import dev.melncat.est.weaponarts.registerDefaultWeaponArts
-import dev.melncat.est.weaponarts.tickWeaponArts
+import dev.melncat.est.weaponart.registerDefaultWeaponArts
+import dev.melncat.est.weaponart.tickWeaponArts
 import dev.melncat.furcation.plugin.FPlugin
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
@@ -26,7 +27,6 @@ import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.PluginClassLoader
-import xyz.xenondevs.nova.api.Nova
 import xyz.xenondevs.nova.material.NovaMaterialRegistry
 import java.net.URLClassLoader
 
@@ -58,6 +58,7 @@ class Est : FPlugin("dev.melncat.est") {
 		server.scheduler.runTaskTimer(0, 1, ::tickWeaponArts)
 		server.scheduler.runTaskTimer(0, 1, ::tickWeaponArtCooldowns)
 		server.scheduler.runTaskTimer(0, 1, ::tickCampfireResting)
+		server.scheduler.runTaskTimer(0, 1, ::tickTraits)
 		runBlocking {
 			launch {
 				loadSocialCredit()

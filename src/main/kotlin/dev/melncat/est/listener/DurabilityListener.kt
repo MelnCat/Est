@@ -11,14 +11,14 @@ import org.bukkit.Material.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.inventory.EquipmentSlot
+import xyz.xenondevs.nova.util.item.DamageableUtils
 import java.util.UUID
 
 @RegisterListener
 object DurabilityListener : FListener {
 	@EventHandler
 	fun onItemDamage(event: PlayerItemDamageEvent) {
-		if (event.item.type == SHULKER_SHELL) return
-		val remaining = event.item.type.maxDurability - event.damage
+		val remaining = DamageableUtils.getMaxDurability(event.item) - event.damage
 		if (remaining <= 10)
 			event.player.sendMessage("<red>Warning! Your <yellow><0></yellow> only has <yellow><1></yellow> durability left!"
 				.mm(Component.translatable(event.item), remaining))

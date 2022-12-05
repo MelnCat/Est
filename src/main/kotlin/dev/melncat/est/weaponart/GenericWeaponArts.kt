@@ -1,4 +1,4 @@
-package dev.melncat.est.weaponarts
+package dev.melncat.est.weaponart
 
 import com.destroystokyo.paper.ParticleBuilder
 import dev.melncat.est.util.move

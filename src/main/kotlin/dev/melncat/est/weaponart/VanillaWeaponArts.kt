@@ -1,10 +1,9 @@
-package dev.melncat.est.weaponarts
+package dev.melncat.est.weaponart
 
 import com.destroystokyo.paper.ParticleBuilder
 import dev.melncat.est.util.attackWith
 import dev.melncat.est.util.move
-import dev.melncat.est.weaponarts.WeaponArtActivation.InteractEntity
-import net.kyori.adventure.util.TriState
+import dev.melncat.est.weaponart.WeaponArtActivation.InteractEntity
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material.*

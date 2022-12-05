@@ -1,4 +1,4 @@
-package dev.melncat.est.weaponarts
+package dev.melncat.est.weaponart
 
 
 import dev.melncat.est.util.EstKey
