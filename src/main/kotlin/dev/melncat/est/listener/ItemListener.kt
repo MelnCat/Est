@@ -21,6 +21,9 @@ import org.bukkit.event.EventPriority.HIGH
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK
+import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.inventory.PrepareAnvilEvent
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent
@@ -33,6 +36,12 @@ object ItemListener : FListener {
 	@EventHandler
 	fun onExplode(event: EntityExplodeEvent) {
 		if (event.entityType === EntityType.CREEPER || event.entityType === EntityType.WITHER_SKULL || event.entityType === EntityType.WITHER)
+			event.blockList().clear()
+	}
+
+	@EventHandler
+	fun onDamage(event: EntityDamageEvent) {
+		if (event.entity is Item && (event.cause == ENTITY_EXPLOSION || event.cause == BLOCK_EXPLOSION))
 			event.isCancelled = true
 	}
 

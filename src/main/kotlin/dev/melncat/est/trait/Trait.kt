@@ -121,6 +121,7 @@ fun getEffectiveTraits(item: ItemStack): List<TraitInstance<*>> {
 
 fun getShownTraits(item: ItemStack) = item.itemKey.let { k ->
 	val eff = getEffectiveTraits(item)
+	if (!item.persistentDataContainer.has(EstKey.traitOverride) && item.novaMaterial == null) return emptyList<TraitInstance<*>>()
 	val hidden = WeaponTraits.hidden[k]
 	if (hidden == null) eff else
 		eff.filter { !hidden.contains(it.trait) }

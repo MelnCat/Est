@@ -5,7 +5,6 @@ depend:
   - Vault
   - Furcation
   - GSit
-  - Nova
 libraries:
   - org.graalvm.js:js:22.1.0
   - org.graalvm.js:js-scriptengine:22.1.0

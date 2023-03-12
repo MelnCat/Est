@@ -60,7 +60,7 @@ private val resting: MutableMap<Player, RestData> = hashMapOf()
 
 private const val particleRadius = 5
 
-@RegisterListener
+//@RegisterListener
 object CampfireListener : FListener {
 	private val smeltable: List<RecipeChoice> by lazy {
 		Bukkit.recipeIterator().asSequence().filterIsInstance<CampfireRecipe>().map { it.inputChoice }.toList()

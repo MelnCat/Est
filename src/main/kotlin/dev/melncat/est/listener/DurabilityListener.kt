@@ -33,7 +33,7 @@ object DurabilityListener : FListener {
 		event.damage = 1
 		val map = armorDurabilityMap[event.player.uniqueId, slot]
 		if (map == null || curTick >= map) {
-			armorDurabilityMap.put(event.player.uniqueId, slot, curTick + 30)
+			armorDurabilityMap.put(event.player.uniqueId, slot, curTick + 20)
 		} else if (curTick < map) {
 			event.isCancelled = true
 			event.damage = 0
