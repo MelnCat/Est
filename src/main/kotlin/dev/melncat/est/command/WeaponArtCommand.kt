@@ -14,7 +14,7 @@ import dev.melncat.furcation.util.mm
 import net.minecraft.world.entity.ai.attributes.Attribute
 import net.minecraft.world.entity.ai.attributes.AttributeMap
 import org.bukkit.command.CommandSender
-import org.bukkit.craftbukkit.v1_19_R1.attribute.CraftAttributeInstance
+import org.bukkit.craftbukkit.v1_19_R2.attribute.CraftAttributeInstance
 import org.bukkit.entity.Player
 
 @RegisterCommand
@@ -26,8 +26,8 @@ object WeaponArtCommand : FCommand {
 		}
 		base.registerCopy("override") {
 			permission += ".override"
-			argument(StringArgument.newBuilder<CommandSender>("art").withSuggestionsProvider {
-				_, _ -> WeaponArtRegistry.ids.toList()
+			argument(StringArgument.newBuilder<CommandSender>("art").withSuggestionsProvider { _, _ ->
+				WeaponArtRegistry.ids.toList()
 			})
 			argument(BooleanArgument.optional("destroyOnUse", false))
 			handler { ctx ->
@@ -39,9 +39,7 @@ object WeaponArtCommand : FCommand {
 					return@handler
 				}
 				val art = WeaponArtRegistry.fromId(artId)
-				if (art == null) {
-					player.sendMessage("<red>Invalid weapon art specified.".mm())
-				}
+					?: return@handler player.sendMessage("<red>Invalid weapon art specified.".mm())
 				item.editMeta {
 					it.persistentDataContainer.set(EstKey.weaponArtOverride, artId)
 					it.persistentDataContainer.set(EstKey.weaponArtDestroyOnUse, ctx.get<Boolean>("destroyOnUse"))

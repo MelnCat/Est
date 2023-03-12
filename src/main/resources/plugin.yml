@@ -2,7 +2,6 @@ name: Est
 main: dev.melncat.est.Est
 version: 1.0.0
 depend:
-  - ItemBridge
   - Vault
   - Furcation
   - GSit

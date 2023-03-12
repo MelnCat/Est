@@ -1,10 +1,11 @@
 package dev.melncat.est.util
 
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
 
 fun changeBlastResistance() {
-	Registry.BLOCK.forEach {
-		val key = Registry.BLOCK.getKey(it).path
+	BuiltInRegistries.BLOCK.forEach {
+		val key = BuiltInRegistries.BLOCK.getKey(it).path
 		val blastResistance = when {
 			key.contains("bedrock") -> 100f
 			key.contains("tinted_glass") -> 5f

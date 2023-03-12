@@ -81,7 +81,8 @@ object WeaponListener : Listener {
 		if (entity.persistentDataContainer.get<Boolean>(EstKey.thrownWeapon) == true) {
 			if (hit != null) {
 				var damage =
-					NovaMaterialRegistry.getOrNull(entity.item)?.novaItem?.getBehavior(Tool::class)?.options?.attackDamage
+					NovaMaterialRegistry.getOrNull(entity.item)?.novaItem?.behaviors?.find { it is Tool }
+						?.let { it as Tool? }?.options?.attackDamage
 						?: 1.0
 				for (modifier in entity.item.type.getDefaultAttributeModifiers(EquipmentSlot.HAND)
 					.get(GENERIC_ATTACK_DAMAGE)) {
@@ -102,8 +103,10 @@ object WeaponListener : Listener {
 			}
 			val item = entity.item
 			DamageableUtils.setDamage(item, DamageableUtils.getDamage(item) + 14)
-			val meta = item.itemMeta as? Damageable
-			if (meta == null || DamageableUtils.getDamage(item) <= DamageableUtils.getMaxDurability(item))
+			if (
+				(DamageableUtils.isDamageable(item) && DamageableUtils.getDamage(item) <= DamageableUtils.getMaxDurability(item)) ||
+				(!DamageableUtils.isDamageable(item) && hit == null)
+			)
 				entity.world.dropItem(entity.location, item)
 		}
 	}

@@ -40,7 +40,9 @@ data class Config(
 	val itemBridgeNamespace: String = "esti",
 	val removeItemsInContainers: Boolean = false,
 	val disableEnderChests: Boolean = false,
-	val webhookUrl: String? = null
+	val webhookUrl: String? = null,
+	val maintenance: Boolean = false,
+	val fullDay24Hour: Boolean = false
 )
 
 fun loadConfig() {

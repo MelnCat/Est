@@ -2,11 +2,15 @@ package dev.melncat.est.weaponart
 
 import com.destroystokyo.paper.ParticleBuilder
 import dev.melncat.est.util.attackWith
+import dev.melncat.est.util.move
+import dev.melncat.est.util.spawnDefault
 import dev.melncat.furcation.util.NTC
 import dev.melncat.furcation.util.component
 import org.bukkit.Color
 import org.bukkit.EntityEffect
+import org.bukkit.EntityEffect.HURT
 import org.bukkit.GameMode.SURVIVAL
+import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Particle.DustOptions
 import org.bukkit.Particle.DustTransition
@@ -16,6 +20,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
@@ -39,7 +44,7 @@ fun WeaponArtRegistry.registerCustom() {
 			)
 			wp.player.addPotionEffects(effects)
 		}
-	}.custom("est:shortsword")
+	}
 
 	register("sacrificial_blow") {
 		name("Sacrificial Blow")
@@ -63,7 +68,7 @@ fun WeaponArtRegistry.registerCustom() {
 			wp.player.health /= 4
 			wp.player.playEffect(EntityEffect.HURT)
 		}
-	}.custom("est:bloodguard_saber")
+	}
 
 	register("venom_spray") {
 		name("Venom Spray")
@@ -83,7 +88,7 @@ fun WeaponArtRegistry.registerCustom() {
 				wp.player.attackWith(entity, 8.0)
 			}
 		}
-	}.custom("est:serpent_fang")
+	}
 
 	register("dash") {
 		name("Dash")
@@ -101,7 +106,7 @@ fun WeaponArtRegistry.registerCustom() {
 			)
 			wp.player.velocity = wp.player.velocity.add(wp.position.direction.multiply(1.2))
 		}
-	}.custom("est:dagger")
+	}
 
 	register("frostfire_spiral") {
 		name("Frostfire Spiral")
@@ -156,7 +161,7 @@ fun WeaponArtRegistry.registerCustom() {
 				}
 			}
 		}
-	}.custom("est:maozesword")
+	}
 
 	register("instant_severance") {
 		name("Instant Severance")
@@ -179,7 +184,7 @@ fun WeaponArtRegistry.registerCustom() {
 				it.player.attackWith(entity, 1.0, 0.0, 1.2)
 			}
 		}
-	}.custom("est:gatekeeper_straightsword")
+	}
 
 	register("cloudkill") {
 		name("Cloudkill")
@@ -217,7 +222,7 @@ fun WeaponArtRegistry.registerCustom() {
 
 			}
 		}
-	}.custom("est:etrus")
+	}
 
 	register("crystal_sweep") {
 		name("Crystal Sweep")
@@ -245,7 +250,7 @@ fun WeaponArtRegistry.registerCustom() {
 				}
 			}
 		}
-	}.custom("est:sword_amethyst")
+	}
 
 	register<Double>("peer_into_the_deep") {
 		name("Peer Into The Deep")
@@ -290,5 +295,29 @@ fun WeaponArtRegistry.registerCustom() {
 			)
 			wp.player.addPotionEffects(effects)
 		}
-	}.custom("est:shortsword")
+	}
+	register<Location>("soul_missile") {
+		name("Soul Missile")
+		duration(3.seconds)
+		cooldown(20.seconds)
+		defaultState { it.player.location.add(0.0, 1.0, 0.0) }
+		val particle = ParticleBuilder(Particle.DUST_COLOR_TRANSITION)
+			.data(DustTransition(Color.fromRGB(0x5cb0d1), Color.fromRGB(0x315082), 1.0f))
+			.offset(0.0, 0.0, 0.0)
+			.count(1)
+			.extra(0.0)
+
+		executor { wp ->
+			particle.location(wp.state).spawnDefault()
+			wp.state.getNearbyLivingEntities(0.5).forEach {
+				if (it != wp.player) {
+					it.health = max(0.0, it.health - 3)
+					it.noDamageTicks = 20
+					it.playEffect(HURT)
+					wp.end()
+				}
+			}
+			wp.state.move(0.4)
+		}
+	}
 }

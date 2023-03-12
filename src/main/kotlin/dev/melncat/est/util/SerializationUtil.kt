@@ -10,7 +10,7 @@ import net.minecraft.nbt.NbtUtils
 import net.minecraft.nbt.SnbtPrinterTagVisitor
 import net.minecraft.nbt.TagParser
 import org.bukkit.NamespacedKey
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack
 import org.bukkit.inventory.ItemStack
 
 object NamespacedKeySerializer : KSerializer<NamespacedKey> {

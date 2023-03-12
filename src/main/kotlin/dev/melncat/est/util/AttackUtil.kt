@@ -2,8 +2,8 @@ package dev.melncat.est.util
 
 import org.bukkit.EntityEffect.HURT
 import org.bukkit.GameMode.CREATIVE
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftLivingEntity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 

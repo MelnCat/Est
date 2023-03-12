@@ -15,6 +15,7 @@ import org.bukkit.attribute.Attributable
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.Attribute.GENERIC_ARMOR
 import org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH
+import org.bukkit.entity.EntityCategory
 import org.bukkit.entity.EntityType.CREEPER
 import org.bukkit.entity.EntityType.ENDER_DRAGON
 import org.bukkit.entity.EntityType.PLAYER
@@ -31,7 +32,9 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageModifier.BLOCKING
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import xyz.xenondevs.nova.util.item.DamageableUtils
 import xyz.xenondevs.nova.util.plus
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -95,8 +98,8 @@ object Traits {
 				else -> 0.0
 			}
 		}, 4
-	).setDamageCallback { event, _, _ ->
-		if (event.getDamage(BLOCKING) < 0) event.setDamage(BLOCKING, 0.0)
+	).setDamageCallback { event, _, l ->
+		if (event.getDamage(BLOCKING) != 0.0) event.setDamage(BLOCKING, event.getDamage(BLOCKING) * l)
 	}.register()
 
 	val DISHONORABLE = SingleTrait(
@@ -297,4 +300,207 @@ object Traits {
 			event.drops.add(item)
 		}
 	}.register()
+
+	val SPLINTERING = SingleTrait(
+		"splintering", "Splintering",
+		"Your attacks have a 25% chance to give Wither I."
+	).setDamageCallback { event, _, _ ->
+		val entity = event.entity
+		if (entity is LivingEntity && Random.nextInt(4) == 0)
+			entity.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 30, 0, true, true, false))
+	}.register()
+
+	val SOFT = SingleTrait(
+		"soft", "Soft",
+		"You deal 25% less damage half the time."
+	).setDamageCallback { event, _, _ ->
+		val entity = event.entity
+		if (entity is LivingEntity && Random.nextInt(2) == 0)
+			event.damage *= 0.75;
+	}.register()
+
+	val HEAVY = AttributeTrait(
+		"heavy", "Heavy",
+		{ "You deal 25% more knockback, but attack 10% slower." },
+		{ -0.1 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).setKnockbackCallback { event, _, _ ->
+		event.acceleration.multiply(1.25)
+	}.register()
+
+	val POISONOUS = SingleTrait(
+		"poisonous", "Poisonous",
+		"Your attacks have a 50% chance to give Poison I."
+	).setDamageCallback { event, _, _ ->
+		val entity = event.entity
+		if (entity is LivingEntity && Random.nextBoolean())
+			entity.addPotionEffect(PotionEffect(PotionEffectType.POISON, 50, 0, true, true, false))
+	}.register()
+
+	val FRACTURING = SingleTrait(
+		"fracturing", "Fracturing",
+		"Your attacks deal more damage when the weapon has less durability."
+	).setDamageCallback { event, player, _ ->
+		val item = player.inventory.itemInMainHand
+		val modifier = 0.35 * (DamageableUtils.getDamage(item) / DamageableUtils.getMaxDurability(item))
+		event.damage *= (modifier + 1)
+	}.register()
+
+	val CONDUCTIVE = SingleTrait(
+		"conductive", "Conductive",
+		"Your attacks have a 20% chance to stun enemies."
+	).setDamageCallback { event, _, _ ->
+		val entity = event.entity
+		if (entity is LivingEntity && Random.nextInt(5) == 0)
+			entity.addPotionEffect(PotionEffect(PotionEffectType.SLOW, 20, 2, true, true, false))
+	}.register()
+
+	val BALANCED = AttributeTrait(
+		"balanced", "Balanced",
+		{ "You attack 5% faster and have 15% more knockback." },
+		{ 0.15 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).setKnockbackCallback { event, _, _ ->
+		event.acceleration.multiply(1.15)
+	}.register()
+
+	val RUSTING = AttributeTrait(
+		"rusting", "Rusting",
+		{ "You attack 10% faster, but deal 25% less damage when raining." },
+		{ 0.15 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).setDamageCallback { event, _, _ ->
+		if (event.entity.world.hasStorm()) event.damage *= 0.75;
+	}.register()
+
+	val PRECISE = AttributeTrait(
+		"precise", "Precise",
+		{ "You attack 15% slower, but deal 20% more damage." },
+		{ -0.15 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).setDamageCallback { event, _, _ ->
+		event.damage *= 1.2
+	}.register()
+
+	val ELECTROCUTION = SingleTrait(
+		"electrocution", "Electrocution",
+		"Your attacks have a 0.5% chance to strike lightning."
+	).setDamageCallback { event, _, _ ->
+		if (event.entity is LivingEntity && Random.nextInt(1000) < 5) {
+			event.entity.world.strikeLightning(event.entity.location)
+			event.damage *= 4
+		}
+	}.register()
+
+	val PURIFYING = SingleTrait(
+		"purifying", "Purifying",
+		"Your attacks heal you by an eigth of a heart."
+	).setDamageCallback { event, player, _ ->
+		if (event.entity is LivingEntity) {
+			player.health += 0.25
+		}
+	}.register()
+
+	val HOLY = SingleTrait(
+		"holy", "Holy",
+		"You deal double damage against undead."
+	).setDamageCallback { event, _, _ ->
+		val entity = event.entity
+		if (entity is LivingEntity && entity.category == EntityCategory.UNDEAD) {
+			event.damage *= 2
+			entity.fireTicks = 100
+		}
+	}.register()
+
+	val WEALTHY = SingleTrait(
+		"wealthy", "Wealthy",
+		"Mobs have a 5% chance to drop an emerald when killed."
+	).setKillCallback { event, _, _ ->
+		if (Random.nextInt(20) == 0) {
+			event.drops.add(ItemStack(EMERALD))
+		}
+	}.register()
+
+	val IMPERVIOUS = SingleTrait(
+		"impervious", "Impervious",
+		"Recovers durability when attacking enemies."
+	).setDamageCallback { event, player, _ ->
+		val entity = event.entity
+		val item = player.inventory.itemInMainHand
+		if (entity is LivingEntity) {
+			DamageableUtils.setDamage(item, max(0, (DamageableUtils.getDamage(item) - event.damage / 4).toInt()))
+		}
+	}.register()
+
+	val TEMPERED = SingleTrait(
+		"tempered", "Tempered",
+		"Deals 10% damage through armor."
+	).setDamageCallback { event, _, _ ->
+		if (event.getDamage(ARMOR) != 0.0) event.setDamage(ARMOR, event.getDamage(ARMOR) * 0.9)
+	}.register()
+
+	val SWIFT = AttributeTrait(
+		"swift", "Swift",
+		{ "You move 10% faster." },
+		{ 0.1 },
+		1,
+		Attributes.MOVEMENT_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).register()
+
+	val PRISMATIC = SingleTrait(
+		"prismatic", "Prismatic",
+		"Attacks have a 10% chance to blind the enemy."
+	).setDamageCallback { event, _, _ ->
+		val entity = event.entity
+		if (entity is LivingEntity && Random.nextInt(10) == 0)
+			entity.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 200, 0, true, true, false))
+	}.register()
+
+	val LIGHTWEIGHT = AttributeTrait(
+		"lightweight", "Lightweight",
+		{ "You attack 10% faster." },
+		{ 0.1 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).register()
+
+	val ANCIENT = AttributeTrait(
+		"ancient", "Ancient",
+		{ "You attack 5% faster and deal 5% more damage." },
+		{ 0.05 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).setDamageCallback { event, _, _ ->
+		event.damage *= 1.05
+	}.register()
+
+	val FEATHERWEIGHT = AttributeTrait(
+		"featherweight", "Featherweight",
+		{ "You attack 15% faster." },
+		{ 0.15 },
+		1,
+		Attributes.ATTACK_SPEED,
+		MULTIPLY_TOTAL,
+		{ _, _ -> true }
+	).register()
+
+
 }

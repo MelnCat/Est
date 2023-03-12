@@ -15,7 +15,7 @@ fun WeaponArtRegistry.registerGeneric() {
 		name("Sky Strike")
 		cooldown(60.seconds)
 		duration(5.seconds)
-		defaultState { wp -> MutableList(4) { wp.position.clone().add(
+		defaultState { wp -> MutableList(60) { wp.position.clone().add(
 			Random.nextDouble(-5.0, 5.0),
 			10.0,
 			Random.nextDouble(-5.0, 5.0)

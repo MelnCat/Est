@@ -137,7 +137,7 @@ object WeaponArtRegistry {
 
 	fun fromItem(item: ItemStack) =
 		item.persistentDataContainer.get<String>(EstKey.weaponArtOverride).let { registered[it] }
-		?: NovaMaterialRegistry.getOrNull(item)?.let { lookup[it.id.toNamespacedKey()] }
+		?: NovaMaterialRegistry.getOrNull(item)?.let { lookup[Key.key(it.id.namespace, it.id.name)] }
 		?: lookup[item.type.key()]
 
 	fun WeaponArt<*>.item(material: Material) = also { lookup[material.key] = this }

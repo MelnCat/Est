@@ -11,6 +11,7 @@ import dev.melncat.est.util.loadConfig
 import dev.melncat.est.util.loadSocialCredit
 import dev.melncat.est.util.runTaskTimer
 import dev.melncat.est.util.saveSocialCredit
+import dev.melncat.est.util.syncTime
 import dev.melncat.est.util.tickItemEffects
 import dev.melncat.est.weaponart.registerDefaultWeaponArts
 import dev.melncat.est.weaponart.tickWeaponArts
@@ -24,7 +25,7 @@ import net.kyori.adventure.key.Key
 import net.milkbowl.vault.economy.Economy
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket
 import org.bukkit.Bukkit
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.PluginClassLoader
 import xyz.xenondevs.nova.material.NovaMaterialRegistry
@@ -57,6 +58,7 @@ class Est : FPlugin("dev.melncat.est") {
 		server.scheduler.runTaskTimer(0, 1, ::tickWeaponArtCooldowns)
 		server.scheduler.runTaskTimer(0, 1, ::tickCampfireResting)
 		server.scheduler.runTaskTimer(0, 1, ::tickTraits)
+		server.scheduler.runTaskTimer(0, 1, ::syncTime)
 		runBlocking {
 			launch {
 				loadSocialCredit()

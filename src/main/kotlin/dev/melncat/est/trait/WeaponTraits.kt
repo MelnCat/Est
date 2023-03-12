@@ -1,5 +1,6 @@
 package dev.melncat.est.trait
 
+import dev.melncat.est.util.toKey
 import net.kyori.adventure.key.Key
 import net.minecraft.world.item.Items.SHIELD
 import org.bukkit.Material
@@ -7,14 +8,19 @@ import xyz.xenondevs.nova.material.NovaMaterialRegistry
 import java.math.BigInteger.TWO
 
 object WeaponTraits {
-	val registry = mutableMapOf<Key, Map<Trait<*>, Int>>()
+	val registry = mutableMapOf<Key, List<TraitInstance<*>>>()
 	val hidden = mutableMapOf<Key, List<Trait<*>>>()
+	val materials = mutableMapOf<String, Trait<*>>()
 
 	private fun addWeaponType(weaponType: String, traits: Map<Trait<*>, Int>, hidden: List<Trait<*>> = listOf()) {
 		val weapons = NovaMaterialRegistry.values.filter { it.id.name.endsWith("_$weaponType") }
-		weapons.forEach { registry[it.id.toNamespacedKey()] = traits }
+		weapons.forEach { registry[it.id.toKey()] = traits.map { v -> TraitInstance(v.key, v.value) } }
 		val vanilla = Material.values().filter { it.key().value().endsWith("_$weaponType") }
-		vanilla.forEach { registry[it.key()] = traits }
+		vanilla.forEach { registry[it.key()] = traits.map { v -> TraitInstance(v.key, v.value) } }
+	}
+
+	private fun addMaterialType(materialType: String, trait: Trait<*>) {
+		materials[materialType] = trait
 	}
 
 	init {
@@ -145,7 +151,7 @@ object WeaponTraits {
 			)
 
 			addWeaponType(
-				"glaive_(komura)", mapOf(
+				"glaive", mapOf(
 					MOMENTUM to 1,
 					SWEEPING to 2,
 					TWO_HANDED to 1,
@@ -177,7 +183,7 @@ object WeaponTraits {
 			)
 
 			addWeaponType(
-				"elven_sword", mapOf(
+				"elvish_sword", mapOf(
 					COMBO_FIEND to 1,
 					MOMENTUM to 2,
 					SWEEPING to 1
@@ -185,7 +191,7 @@ object WeaponTraits {
 			)
 
 			addWeaponType(
-				"sashka", mapOf(
+				"shashka", mapOf(
 					CHEST_STRIKE to 1,
 					SWEEPING to 1,
 					RECKLESS to 1
@@ -287,14 +293,33 @@ object WeaponTraits {
 			)
 
 			addWeaponType(
-				"javelin_(retex_spear)", mapOf(
-					PIERCING to 1,
-					THRUST to 1,
-					THROWABLE to 1,
+				"shortsword", mapOf(
+					CHEST_STRIKE to 1,
+					TWINNED to 2,
 					RECKLESS to 1
-				), listOf(RECKLESS)
+				)
 			)
 
+			addMaterialType("wooden", SPLINTERING)
+			addMaterialType("golden", SOFT)
+			addMaterialType("stone", HEAVY)
+			addMaterialType("nickel", POISONOUS)
+			addMaterialType("tin", FRACTURING)
+			addMaterialType("copper", CONDUCTIVE)
+			addMaterialType("bronze", BALANCED)
+			addMaterialType("iron", RUSTING)
+			addMaterialType("invar", PRECISE)
+			addMaterialType("electrum", ELECTROCUTION)
+			addMaterialType("amethyst", PURIFYING)
+			addMaterialType("silver", HOLY)
+			addMaterialType("emerald", WEALTHY)
+			addMaterialType("platinum", IMPERVIOUS)
+			addMaterialType("steel", TEMPERED)
+			addMaterialType("cobalt", SWIFT)
+			addMaterialType("diamond", PRISMATIC)
+			addMaterialType("hard carbon", LIGHTWEIGHT)
+			addMaterialType("netherite", ANCIENT)
+			addMaterialType("mithril", FEATHERWEIGHT)
 		}
 	}
 }

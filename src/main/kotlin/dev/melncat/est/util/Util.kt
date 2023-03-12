@@ -7,6 +7,7 @@ import dev.melncat.furcation.util.NTC
 import dev.melncat.furcation.util.component
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.kyori.adventure.key.Key
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -20,6 +21,7 @@ import org.bukkit.inventory.PlayerInventory
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.plugin.ServicesManager
 import org.bukkit.scheduler.BukkitScheduler
+import xyz.xenondevs.nova.data.NamespacedId
 import xyz.xenondevs.nova.material.NovaMaterialRegistry
 
 
@@ -110,4 +112,7 @@ fun ParticleBuilder.spawnDefault()
 	= receivers(particleViewDistance).spawn()
 
 val ItemStack.itemKey
-	get() = NovaMaterialRegistry.getOrNull(this)?.id?.toNamespacedKey() ?: type.key()
+	get() = NovaMaterialRegistry.getOrNull(this)?.id?.let{ Key.key(it.namespace, it.name) } ?: type.key()
+
+fun NamespacedId.toKey()
+	= Key.key(namespace, name)

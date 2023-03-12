@@ -1,6 +1,7 @@
 package dev.melncat.est.listener
 
 import dev.melncat.est.util.ARMOR_EFFECT_KEY
+import dev.melncat.est.util.applyItemEffect
 import dev.melncat.est.util.get
 import dev.melncat.est.util.has
 import dev.melncat.est.util.isAir
@@ -12,6 +13,7 @@ import dev.melncat.furcation.util.component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.ItemFlag.HIDE_POTION_EFFECTS
 import org.bukkit.potion.PotionEffect
 import org.purpurmc.purpur.event.packet.NetworkItemSerializeEvent
@@ -33,6 +35,10 @@ object ItemEffectListener : FListener {
 		if (item.hasLore()) item.lore(item.lore()!! + newLore)
 		else item.lore(newLore)
 		event.setItemStack(item)
+	}
+	@EventHandler(ignoreCancelled = true)
+	fun onEat(event: PlayerItemConsumeEvent) {
+		applyItemEffect(event.player, event.item, food = true)
 	}
 }
 

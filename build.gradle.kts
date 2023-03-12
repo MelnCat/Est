@@ -23,8 +23,8 @@ repositories {
 dependencies {
 	compileOnly(kotlin("stdlib"))
 	compileOnly(kotlin("reflect"))
-	paperweightDevBundle("org.purpurmc.purpur", "1.19.2-R0.1-SNAPSHOT")
-	compileOnly("org.purpurmc.purpur:purpur-api:1.19.2-R0.1-SNAPSHOT")
+	paperweightDevBundle("org.purpurmc.purpur", "1.19.3-R0.1-SNAPSHOT")
+	compileOnly("org.purpurmc.purpur:purpur-api:1.19.3-R0.1-SNAPSHOT")
 
 	compileOnly("dev.melncat.furcation:Furcation:0.0.2")
 	compileOnly("com.github.MilkBowl:VaultAPI:1.7")
@@ -34,10 +34,10 @@ dependencies {
 	compileOnly("org.tukaani:xz:1.9")
 	compileOnly("org.reflections:reflections:0.10.2")
 	compileOnly("org.graalvm.truffle:truffle-api:22.2.0")
-	compileOnly("cloud.commandframework:cloud-paper:1.7.1")
-	compileOnly("cloud.commandframework:cloud-kotlin-extensions:1.7.1")
-	compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.7.1")
-	compileOnly("xyz.xenondevs.nova:nova:0.12.5")
+	compileOnly("cloud.commandframework:cloud-paper:1.8.0")
+	compileOnly("cloud.commandframework:cloud-kotlin-extensions:1.8.0")
+	compileOnly("cloud.commandframework:cloud-kotlin-coroutines:1.8.0")
+	compileOnly("xyz.xenondevs.nova:nova:0.12.11")
 	compileOnly(files("./lib/GSit-1.2.7.jar"))
 
 	implementation("com.charleskorn.kaml:kaml:0.49.0")

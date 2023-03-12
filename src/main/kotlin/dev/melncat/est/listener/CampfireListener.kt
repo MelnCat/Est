@@ -28,6 +28,7 @@ import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import xyz.xenondevs.nova.util.item.DamageableUtils
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin
@@ -121,13 +122,13 @@ fun tickCampfireResting() {
 		if (data.type == CampfireType.Soul || (data.type == CampfireType.Normal && data.ticks % 5 == 0))
 			for (item in player.inventory) {
 				if (item == null) continue
-				val meta = item.itemMeta
-				if (meta !is Damageable || meta.damage == 0) continue
+				if (!DamageableUtils.isDamageable(item)) continue
+				val damage = DamageableUtils.getDamage(item)
+				if (damage == 0) continue
 				when (data.type) {
-					CampfireType.Normal -> meta.damage--
-					CampfireType.Soul -> meta.damage = 0
+					CampfireType.Normal -> DamageableUtils.setDamage(item, damage - 1)
+					CampfireType.Soul -> DamageableUtils.setDamage(item, 0)
 				}
-				item.itemMeta = meta
 			}
 		if (data.ticks % 10 == 0) {
 			for (i in 0 until 10) {

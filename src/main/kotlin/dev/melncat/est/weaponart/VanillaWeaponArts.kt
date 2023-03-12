@@ -39,7 +39,7 @@ fun WeaponArtRegistry.registerVanilla() {
 			)
 			wp.player.attackWith(wp.entity, 8.0, 0.0, 1.2, true)
 		}
-	}.item(WOODEN_SWORD)
+	}
 	register("hurl_rock") {
 		name("Hurl Rock")
 		cooldown(5.seconds)
@@ -48,7 +48,7 @@ fun WeaponArtRegistry.registerVanilla() {
 				it.item = ItemStack(COBBLESTONE)
 			}
 		}
-	}.item(STONE_SWORD)
+	}
 	register<List<Location>>("ferrous_strike") {
 		name("Ferrous Strike")
 		duration(2.seconds)
@@ -85,7 +85,7 @@ fun WeaponArtRegistry.registerVanilla() {
 				}
 			}
 		}
-	}.item(IRON_SWORD)
+	}
 	register<Pair<Collection<Block>, Collection<Player>>>("midas_touch") {
 		name("Midas Touch")
 		cooldown(30.seconds)
@@ -124,7 +124,7 @@ fun WeaponArtRegistry.registerVanilla() {
 				}
 			}
 		}
-	}.item(GOLDEN_SWORD)
+	}
 	register("wave_of_radiance") {
 		name("Wave of Radiance")
 		cooldown(25.seconds)
@@ -167,7 +167,7 @@ fun WeaponArtRegistry.registerVanilla() {
 				}
 			}
 		}
-	}.item(DIAMOND_SWORD)
+	}
 	register("pillar_of_fire") {
 		name("Pillar of Fire")
 		cooldown(25.seconds)
@@ -192,5 +192,5 @@ fun WeaponArtRegistry.registerVanilla() {
 				entity.fireTicks = 200
 			}
 		}
-	}.item(NETHERITE_SWORD)
+	}
 }
