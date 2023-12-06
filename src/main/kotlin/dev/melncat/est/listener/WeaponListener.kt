@@ -16,6 +16,7 @@ import org.bukkit.attribute.Attribute.GENERIC_ATTACK_DAMAGE
 import org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER
 import org.bukkit.attribute.AttributeModifier.Operation.ADD_SCALAR
 import org.bukkit.attribute.AttributeModifier.Operation.MULTIPLY_SCALAR_1
+import org.bukkit.craftbukkit.v1_19_R2.CraftWorld
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -77,6 +78,10 @@ object WeaponListener : Listener {
 		if (entity !is Snowball) return
 		if (entity.item.type == Material.COBBLESTONE) {
 			hit?.damage(2.0, entity.shooter as? Entity ?: entity)
+		} else if (entity.item.type == Material.IRON_NUGGET) {
+			hit?.damage(5.0, entity.shooter as? Entity ?: entity)
+		} else if (entity.item.persistentDataContainer.get<String>(EstKey.customItem) == "cobblestone_dynamite") {
+			entity.world.createExplosion(entity.location, 16f, false, true, entity)
 		}
 		if (entity.persistentDataContainer.get<Boolean>(EstKey.thrownWeapon) == true) {
 			if (hit != null) {

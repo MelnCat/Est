@@ -7,4 +7,7 @@ object EstKey {
 	val hasJoined = key("has_joined")
 	val traitOverride = key("trait_override")
 	val thrownWeapon = key("thrown_weapon")
+	val customItem = key("custom_item")
+	val data = key("data")
+	val lodestone = key("lodestone")
 }

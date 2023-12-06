@@ -42,7 +42,14 @@ object WebhookListener : FListener {
 		val allowedMentions: Map<String, List<String>>
 	)
 
-	private fun sendMessage(message: String) {
+	 fun sendMessage(message: String) {
+		 for (url in config.otherWebhooks) {
+			 val req = HttpRequest.newBuilder(URI.create(url))
+				 .POST(BodyPublishers.ofString(Json.encodeToString(WebhookBody(message, defaultAllowedMentions))))
+				 .header("Content-Type", "application/json")
+				 .build()
+			 client.sendAsync(req, BodyHandlers.discarding())
+		 }
 		val url = config.webhookUrl ?: return
 		val req = HttpRequest.newBuilder(URI.create(url))
 			.POST(BodyPublishers.ofString(Json.encodeToString(WebhookBody(message, defaultAllowedMentions))))

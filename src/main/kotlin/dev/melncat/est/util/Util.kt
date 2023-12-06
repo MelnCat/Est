@@ -4,10 +4,12 @@ import com.destroystokyo.paper.ParticleBuilder
 import dev.melncat.est.plugin
 import dev.melncat.est.weaponart.particleViewDistance
 import dev.melncat.furcation.util.NTC
+import dev.melncat.furcation.util.TD
 import dev.melncat.furcation.util.component
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
+import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -116,3 +118,7 @@ val ItemStack.itemKey
 
 fun NamespacedId.toKey()
 	= Key.key(namespace, name)
+
+fun ItemStack.withName(name: Component) = also { it.editMeta { m -> m.displayName(name) } }
+fun ItemStack.withLore(lore: List<Component>) = also { it.editMeta { m -> m.lore(lore) } }
+fun Component.notItalic() = decoration(TD.ITALIC, false)

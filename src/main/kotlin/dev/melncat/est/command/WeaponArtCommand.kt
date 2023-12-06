@@ -26,7 +26,7 @@ object WeaponArtCommand : FCommand {
 		}
 		base.registerCopy("override") {
 			permission += ".override"
-			argument(StringArgument.newBuilder<CommandSender>("art").withSuggestionsProvider { _, _ ->
+			argument(StringArgument.builder<CommandSender>("art").withSuggestionsProvider { _, _ ->
 				WeaponArtRegistry.ids.toList()
 			})
 			argument(BooleanArgument.optional("destroyOnUse", false))

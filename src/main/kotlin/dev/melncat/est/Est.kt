@@ -2,9 +2,12 @@ package dev.melncat.est
 
 import dev.melncat.est.classloader.EstClassLoader
 import dev.melncat.est.command.tickParabolas
+import dev.melncat.est.listener.WebhookListener
 import dev.melncat.est.listener.tickCampfireResting
 import dev.melncat.est.listener.tickTraits
 import dev.melncat.est.listener.tickWeaponArtCooldowns
+import dev.melncat.est.playergroup.loadPlayerGroups
+import dev.melncat.est.playergroup.savePlayerGroups
 import dev.melncat.est.util.changeBlastResistance
 import dev.melncat.est.util.getRegistration
 import dev.melncat.est.util.loadConfig
@@ -24,6 +27,7 @@ import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.key.Key
 import net.milkbowl.vault.economy.Economy
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket
+import net.minecraft.server.MinecraftServer
 import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack
 import org.bukkit.inventory.ItemStack
@@ -59,12 +63,15 @@ class Est : FPlugin("dev.melncat.est") {
 		server.scheduler.runTaskTimer(0, 1, ::tickCampfireResting)
 		server.scheduler.runTaskTimer(0, 1, ::tickTraits)
 		server.scheduler.runTaskTimer(0, 1, ::syncTime)
+		loadPlayerGroups()
+		server.scheduler.runTaskTimer(0, 20 * 60 * 10, ::savePlayerGroups)
 		runBlocking {
 			launch {
 				loadSocialCredit()
 				server.scheduler.runTaskTimer(0, 20 * 60 * 10, ::saveSocialCredit)
 			}
 		}
+		WebhookListener.sendMessage("**Server started.**")
 
 		ChannelInitializeListenerHolder.addListener(listenerKey) { channel ->
 			channel.pipeline()
@@ -93,5 +100,7 @@ class Est : FPlugin("dev.melncat.est") {
 
 	override fun disable() {
 		ChannelInitializeListenerHolder.removeListener(listenerKey)
+		WebhookListener.sendMessage("**Server stopped.**")
+		savePlayerGroups()
 	}
 }

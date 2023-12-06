@@ -41,6 +41,7 @@ data class Config(
 	val removeItemsInContainers: Boolean = false,
 	val disableEnderChests: Boolean = false,
 	val webhookUrl: String? = null,
+	val otherWebhooks: List<String> = listOf(),
 	val maintenance: Boolean = false,
 	val fullDay24Hour: Boolean = false
 )

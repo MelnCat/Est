@@ -61,7 +61,7 @@ object BookCommand : FCommand {
 				val bookTitle = bookData[0].replace("\uFEFF", "")
 				val data = bookData.subList(2, bookData.size).joinToString("\n")
 				val bookPages = getLines(data).chunked(14)
-				val bookItems = bookPages.chunked(999).let { a ->
+				val bookItems = bookPages.chunked(100).let { a ->
 					a.mapIndexed { i, x ->
 						ItemStack(WRITTEN_BOOK).meta<BookMeta> {
 							displayName(

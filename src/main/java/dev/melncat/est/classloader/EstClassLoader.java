@@ -1,10 +1,19 @@
 package dev.melncat.est.classloader;
 
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class EstClassLoader extends URLClassLoader {
 	private final ClassLoader nova;
 	private final URLClassLoader libLoader;
+
+	private List<String> a = ((Supplier<List<String>>) () -> {
+		List<String> list = new ArrayList<>();
+		list.add("hello");
+		return list;
+	}).get();
 
 	public EstClassLoader(ClassLoader nova, URLClassLoader libLoader) {
 		super(libLoader.getURLs(), libLoader.getParent());

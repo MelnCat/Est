@@ -8,6 +8,7 @@ import dev.melncat.est.trait.Traits
 import dev.melncat.est.trait.getEffectiveTraits
 import dev.melncat.est.trait.getShownTraits
 import dev.melncat.est.util.EstKey
+import dev.melncat.est.util.get
 import dev.melncat.est.util.isAir
 import dev.melncat.est.util.set
 import dev.melncat.furcation.plugin.loaders.FListener
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL
 import net.minecraft.world.entity.ai.attributes.Attributes
 import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.entity.Snowball
@@ -53,10 +55,10 @@ object TraitListener : FListener {
 		if (traits.isNotEmpty()) {
 			event.itemStack.lore(
 				(event.itemStack.lore()
-					?: listOf()) + if ("show_trait_info" in event.itemStack.itemMeta.unhandledTags) traits.flatMap {
+					?: listOf()) + if (event.itemStack.persistentDataContainer.get<Byte>(NamespacedKey.fromString("est:show_trait_info")!!) == 1.toByte()) traits.flatMap {
 					listOf(
 						traitDisplay(it),
-						*splitWords(it.trait.getDescription(it.level)).map { it.component(NamedTextColor.DARK_GRAY) }
+						*splitWords(it.trait.getDescription(it.level)).map { n -> n.component(NamedTextColor.DARK_GRAY) }
 							.toTypedArray()
 					)
 				} else traits.map {

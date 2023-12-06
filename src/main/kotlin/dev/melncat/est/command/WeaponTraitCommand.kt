@@ -28,10 +28,10 @@ object WeaponTraitCommand : FCommand {
 		}
 		base.registerCopy("override") {
 			permission += ".override"
-			argument(StringArgument.newBuilder<CommandSender>("trait").withSuggestionsProvider { _, _ ->
+			argument(StringArgument.builder<CommandSender>("trait").withSuggestionsProvider { _, _ ->
 				Traits.traitRegistry.keys.toList()
 			})
-			argument(IntegerArgument.newBuilder<CommandSender>("level").withSuggestionsProvider { ctx, _ ->
+			argument(IntegerArgument.builder<CommandSender>("level").withSuggestionsProvider { ctx, _ ->
 				Traits.traitRegistry[ctx.getOrDefault("trait", "")].let { t ->
 					if (t != null) (1..t.maxLevel).map { it.toString() }.toList() else emptyList()
 				}

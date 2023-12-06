@@ -7,6 +7,7 @@ import cloud.commandframework.kotlin.extension.buildAndRegister
 import cloud.commandframework.paper.PaperCommandManager
 import dev.melncat.furcation.plugin.loaders.FCommand
 import dev.melncat.furcation.plugin.loaders.RegisterCommand
+import io.papermc.paper.entity.TeleportFlag
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.ArmorStand
@@ -77,7 +78,7 @@ fun tickParabolas() {
 			.add(l.path.clone().divide(Vector(l.end, l.end, l.end)).multiply(l.current))
 			.add(0.0, parabola, 0.0)
 		@Suppress("UnstableApiUsage")
-		l.vehicle.teleport(loc, true)
+		l.vehicle.teleport(loc, TeleportFlag.EntityState.RETAIN_PASSENGERS)
 		l.current++
 	}
 }

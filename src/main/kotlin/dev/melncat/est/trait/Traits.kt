@@ -467,7 +467,7 @@ object Traits {
 	).setDamageCallback { event, _, _ ->
 		val entity = event.entity
 		if (entity is LivingEntity && Random.nextInt(10) == 0)
-			entity.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 200, 0, true, true, false))
+			entity.addPotionEffect(PotionEffect(PotionEffectType.DARKNESS, 200, 0, true, true, false))
 	}.register()
 
 	val LIGHTWEIGHT = AttributeTrait(
